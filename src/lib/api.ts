@@ -173,21 +173,14 @@ function createRequestOptions(
  * Fetch CSRF token from backend
  */
 export async function fetchCsrfToken(): Promise<void> {
-  // try {
-  //   const response = await fetch(`${API_BASE_URL}/csrf/`, {
-  //     method: 'GET',
-  //     credentials: 'include',
-  //   });
-    
-  //   if (response.ok) {
-  //     const data = await response.json();
-  //     // The token is automatically set as a cookie by the backend
-  //     // We can also store it if needed, but getCsrfToken() will read it from cookies
-  //   }
-  // } catch (error) {
-  //   console.error('Failed to fetch CSRF token:', error);
-  // }
-  return;
+  try {
+    await fetchWithErrorHandling(`${API_BASE_URL}/csrf/`, {
+      method: "GET",
+      credentials: "include",
+    });
+  } catch (error) {
+    console.warn("Failed to prefetch CSRF token", error);
+  }
 }
 
 /**
@@ -222,18 +215,23 @@ export async function fetchCsrfToken(): Promise<void> {
 // }
 
 export async function adminLogin(username: string, password: string) {
-  const response = await fetch(`${API_BASE_URL}/admin/login/`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ username, password }),
-  });
+  // Ensure CSRF cookie is set before attempting login
+  await fetchCsrfToken();
 
-  if (!response.ok) {
-    throw new Error('Invalid credentials');
-  }
+  const response = await fetchWithErrorHandling(
+    `${API_BASE_URL}/admin/login/`,
+    createRequestOptions("POST", { username, password })
+  );
 
-  return response.json();  // contains { message, user }
+  return handleResponse<{
+    message: string;
+    user: {
+      id: number;
+      username: string;
+      email: string;
+      is_staff: boolean;
+    };
+  }>(response);
 }
 
 
