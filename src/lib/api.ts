@@ -169,52 +169,69 @@ function createRequestOptions(
  * Fetch CSRF token from backend
  */
 export async function fetchCsrfToken(): Promise<void> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/csrf/`, {
-      method: 'GET',
-      credentials: 'include',
-    });
+  // try {
+  //   const response = await fetch(`${API_BASE_URL}/csrf/`, {
+  //     method: 'GET',
+  //     credentials: 'include',
+  //   });
     
-    if (response.ok) {
-      const data = await response.json();
-      // The token is automatically set as a cookie by the backend
-      // We can also store it if needed, but getCsrfToken() will read it from cookies
-    }
-  } catch (error) {
-    console.error('Failed to fetch CSRF token:', error);
-  }
+  //   if (response.ok) {
+  //     const data = await response.json();
+  //     // The token is automatically set as a cookie by the backend
+  //     // We can also store it if needed, but getCsrfToken() will read it from cookies
+  //   }
+  // } catch (error) {
+  //   console.error('Failed to fetch CSRF token:', error);
+  // }
+  return;
 }
 
 /**
  * Admin: Login with username and password
  * Sets session cookie automatically for subsequent authenticated requests
  */
-export async function adminLogin(username: string, password: string): Promise<{
-  message: string;
-  user: {
-    id: number;
-    username: string;
-    email: string;
-    is_staff: boolean;
-  };
-}> {
-  // Fetch CSRF token first
-  await fetchCsrfToken();
+// export async function adminLogin(username: string, password: string): Promise<{
+//   message: string;
+//   user: {
+//     id: number;
+//     username: string;
+//     email: string;
+//     is_staff: boolean;
+//   };
+// }> {
+//   // Fetch CSRF token first
+//   await fetchCsrfToken();
   
-  const response = await fetchWithErrorHandling(
-    `${API_BASE_URL}/admin/login/`,
-    createRequestOptions("POST", { username, password })
-  );
-  return handleResponse<{
-    message: string;
-    user: {
-      id: number;
-      username: string;
-      email: string;
-      is_staff: boolean;
-    };
-  }>(response);
+//   const response = await fetchWithErrorHandling(
+//     `${API_BASE_URL}/admin/login/`,
+//     createRequestOptions("POST", { username, password })
+//   );
+//   return handleResponse<{
+//     message: string;
+//     user: {
+//       id: number;
+//       username: string;
+//       email: string;
+//       is_staff: boolean;
+//     };
+//   }>(response);
+// }
+
+export async function adminLogin(username: string, password: string) {
+  const response = await fetch(`${API_BASE_URL}/admin/login/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ username, password }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Invalid credentials');
+  }
+
+  return response.json();  // contains { message, user }
 }
+
 
 /**
  * Admin: Logout
