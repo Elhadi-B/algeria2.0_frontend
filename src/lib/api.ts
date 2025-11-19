@@ -166,6 +166,9 @@ function createRequestOptions(
   if (body) {
     if (useFormData) {
       options.body = body; // FormData sets its own Content-Type with boundary
+    } else if (body instanceof URLSearchParams) {
+      headers["Content-Type"] = "application/x-www-form-urlencoded;charset=UTF-8";
+      options.body = body.toString();
     } else {
       headers["Content-Type"] = "application/json";
       options.body = JSON.stringify(body);
@@ -227,9 +230,13 @@ export async function adminLogin(username: string, password: string) {
   // Ensure CSRF cookie exists before attempting login
   await fetchCsrfToken();
 
+  const formBody = new URLSearchParams();
+  formBody.set("username", username);
+  formBody.set("password", password);
+
   const response = await fetchWithErrorHandling(
     `${API_BASE_URL}/admin/login/`,
-    createRequestOptions("POST", { username, password })
+    createRequestOptions("POST", formBody)
   );
 
   return handleResponse<{
