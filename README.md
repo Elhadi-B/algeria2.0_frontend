@@ -31,7 +31,7 @@ cd <YOUR_PROJECT_NAME>
 
 # Step 2.5: Configure the backend API URL
 cp .env.example .env
-# For production on the same domain, use /api so requests piggyback the site origin
+# For production on the same domain, use /api (no trailing slash) so requests piggyback the site origin
 echo "VITE_API_URL=/api" >> .env
 
 # Step 3: Install the necessary dependencies.

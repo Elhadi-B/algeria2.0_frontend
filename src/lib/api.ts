@@ -27,9 +27,18 @@ import type {
 const runtimeOrigin =
   typeof window !== "undefined" ? window.location.origin : undefined;
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL?.trim() ||
-  (runtimeOrigin ? `${runtimeOrigin}/api` : "http://localhost:8000/api");
+const deriveBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL?.trim();
+  const fallback = runtimeOrigin
+    ? `${runtimeOrigin}/api`
+    : "http://localhost:8000/api";
+  return envUrl && envUrl.length > 0 ? envUrl : fallback;
+};
+
+const normalizeBaseUrl = (url: string): string =>
+  url.replace(/\/+$/, "");
+
+const API_BASE_URL = normalizeBaseUrl(deriveBaseUrl());
 
 // Helper function to get CSRF token from cookies
 const getCsrfToken = (): string | null => {
