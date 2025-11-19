@@ -179,11 +179,11 @@ function createRequestOptions(
 // ==================== ADMIN ENDPOINTS ====================
 
 /**
- * Fetch CSRF token from backend
+ * Fetch CSRF token from backend and set the cookie via Set-Cookie header
  */
 export async function fetchCsrfToken(): Promise<void> {
   try {
-    await fetchWithErrorHandling(`${API_BASE_URL}/csrf/`, {
+    await fetchWithErrorHandling(`${API_BASE_URL}/security/csrf/`, {
       method: "GET",
       credentials: "include",
     });
@@ -224,7 +224,7 @@ export async function fetchCsrfToken(): Promise<void> {
 // }
 
 export async function adminLogin(username: string, password: string) {
-  // Ensure CSRF cookie is set before attempting login
+  // Ensure CSRF cookie exists before attempting login
   await fetchCsrfToken();
 
   const response = await fetchWithErrorHandling(
