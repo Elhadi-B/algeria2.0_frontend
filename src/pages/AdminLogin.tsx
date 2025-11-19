@@ -27,15 +27,15 @@ const AdminLogin = () => {
       sessionStorage.setItem("adminUser", JSON.stringify(response.user));
       
       toast({
-        title: "Login successful",
-        description: `Welcome, ${response.user.username}!`,
+        title: "Connexion réussie",
+        description: `Bienvenue, ${response.user.username}!`,
       });
       
       navigate("/admin/dashboard");
     } catch (error: any) {
-      const errorMessage = error?.error || error?.detail || "Invalid credentials. Please try again.";
+      const errorMessage = error?.error || error?.detail || "Identifiants invalides. Veuillez réessayer.";
       toast({
-        title: "Login failed",
+        title: "Échec de connexion",
         description: errorMessage,
         variant: "destructive",
       });
@@ -48,33 +48,33 @@ const AdminLogin = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-primary/10 p-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-2 text-center">
-          <div className="mx-auto w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-2">
-            <Shield className="w-6 h-6 text-primary-foreground" />
+          <div className="mx-auto mb-4">
+            <img src="/logo/logo-algeria20.svg" alt="Algeria 2.0" className="h-16 w-16 mx-auto" />
           </div>
-          <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
+          <CardTitle className="text-2xl font-bold">Connexion Admin</CardTitle>
           <CardDescription>
-            Enter your credentials to access the admin dashboard
+            Entrez vos identifiants pour accéder au tableau de bord admin
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username">Nom d'utilisateur</Label>
               <Input
                 id="username"
                 type="text"
-                placeholder="Enter your username"
+                placeholder="Entrez votre nom d'utilisateur"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Mot de passe</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="Enter your password"
+                placeholder="Entrez votre mot de passe"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -85,7 +85,7 @@ const AdminLogin = () => {
               className="w-full"
               disabled={isLoading}
             >
-              {isLoading ? "Logging in..." : "Login"}
+              {isLoading ? "Connexion..." : "Se connecter"}
             </Button>
           </form>
         </CardContent>

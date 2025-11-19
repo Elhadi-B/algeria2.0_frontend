@@ -74,21 +74,21 @@ const AdminTeams = () => {
   }, [loadTeams]);
 
   const handleDelete = async (id: number, projectName: string) => {
-    if (!confirm(`Are you sure you want to delete "${projectName}"?`)) {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer "${projectName}" ?`)) {
       return;
     }
 
     try {
       await adminDeleteTeam(id);
       toast({
-        title: "Team deleted",
-        description: `"${projectName}" has been removed`,
+        title: "Équipe supprimée",
+        description: `"${projectName}" a été retirée`,
       });
       await loadTeams();
     } catch (error: any) {
       toast({
-        title: "Failed to delete team",
-        description: error?.error || error?.detail || "Please try again",
+        title: "Échec de la suppression de l'équipe",
+        description: error?.error || error?.detail || "Veuillez réessayer",
         variant: "destructive",
       });
     }
@@ -127,7 +127,7 @@ const AdminTeams = () => {
         <Card className="p-12 text-center">
           <p className="text-destructive mb-4">{error}</p>
           <Button onClick={() => loadTeams()}>
-            Try Again
+            Réessayer
           </Button>
         </Card>
       </div>
@@ -138,9 +138,9 @@ const AdminTeams = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Teams</h1>
+          <h1 className="text-3xl font-bold">Équipes</h1>
           <p className="text-muted-foreground mt-1">
-            Manage participating teams
+            Gérer les équipes participantes
           </p>
         </div>
         <div className="flex gap-2">
@@ -149,11 +149,11 @@ const AdminTeams = () => {
             onClick={() => navigate("/admin/teams/import")}
           >
             <Upload className="h-4 w-4 mr-2" />
-            Import CSV
+            Importer CSV
           </Button>
           <Button onClick={() => navigate("/admin/teams/new")}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Team
+            Ajouter Équipe
           </Button>
         </div>
       </div>
@@ -162,7 +162,7 @@ const AdminTeams = () => {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search teams or enter team ID..."
+            placeholder="Rechercher des équipes ou entrer l'ID de l'équipe..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -190,7 +190,7 @@ const AdminTeams = () => {
 
       {isLoading ? (
         <Card className="p-12 text-center">
-          <p className="text-muted-foreground">Loading teams...</p>
+          <p className="text-muted-foreground">Chargement des équipes...</p>
         </Card>
       ) : displayMode === "table" ? (
         <Card>
@@ -199,9 +199,9 @@ const AdminTeams = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-16">ID</TableHead>
-                  <TableHead>Project</TableHead>
-                  <TableHead>Team Leader</TableHead>
-                  <TableHead>Members</TableHead>
+                  <TableHead>Projet</TableHead>
+                  <TableHead>Chef d'Équipe</TableHead>
+                  <TableHead>Membres</TableHead>
                   <TableHead className="w-32 text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -245,7 +245,7 @@ const AdminTeams = () => {
                           onClick={() => navigate(`/admin/teams/${team.id}/edit`)}
                         >
                           <Edit className="h-3 w-3 mr-1" />
-                          Edit
+                          Modifier
                         </Button>
                         <Button
                           size="sm"
@@ -277,11 +277,11 @@ const AdminTeams = () => {
                     <div className="text-xs text-muted-foreground mb-1">Email: {team.team_leader_email}</div>
                   )}
                   {team.team_leader_phone && (
-                    <div className="text-xs text-muted-foreground mb-1">Phone: {team.team_leader_phone}</div>
+                    <div className="text-xs text-muted-foreground mb-1">Tél: {team.team_leader_phone}</div>
                   )}
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-muted-foreground mb-1">Members</p>
+                  <p className="text-xs font-medium text-muted-foreground mb-1">Membres</p>
                   <p className="text-sm">{team.members || "—"}</p>
                 </div>
                 <p className="text-sm text-muted-foreground line-clamp-3">
@@ -295,7 +295,7 @@ const AdminTeams = () => {
                     onClick={() => navigate(`/admin/teams/${team.id}/edit`)}
                   >
                     <Edit className="h-3 w-3 mr-1" />
-                    Edit
+                    Modifier
                   </Button>
                   <Button
                     variant="outline"
@@ -314,17 +314,17 @@ const AdminTeams = () => {
 
       {!isLoading && filteredTeams.length === 0 && teamsArray.length === 0 && (
         <Card className="p-12 text-center">
-          <p className="text-muted-foreground">No teams found</p>
+          <p className="text-muted-foreground">Aucune équipe trouvée</p>
           <Button className="mt-4" onClick={() => navigate("/admin/teams/new")}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Your First Team
+            Ajouter Votre Première Équipe
           </Button>
         </Card>
       )}
 
       {!isLoading && filteredTeams.length === 0 && teamsArray.length > 0 && (
         <Card className="p-12 text-center">
-          <p className="text-muted-foreground">No teams match your search</p>
+          <p className="text-muted-foreground">Aucune équipe ne correspond à votre recherche</p>
         </Card>
       )}
     </div>

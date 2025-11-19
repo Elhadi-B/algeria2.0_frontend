@@ -11,11 +11,14 @@ const Index = () => {
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-16">
         <div className="text-center space-y-6 max-w-3xl mx-auto">
+          <div className="flex justify-center mb-8">
+            <img src="/logo/logo-algeria20.svg" alt="Algeria 2.0" className="h-24 w-24" />
+          </div>
           <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary to-success bg-clip-text text-transparent">
-            Pitch Judging Platform
+            Plateforme d'Évaluation Hackathon
           </h1>
           <p className="text-xl text-muted-foreground">
-            A modern, real-time platform for managing and evaluating startup pitches at your incubator events
+            Une plateforme moderne en temps réel pour gérer et évaluer les projets de hackathon lors de vos événements
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
@@ -25,7 +28,7 @@ const Index = () => {
               className="gap-2"
             >
               <Shield className="h-5 w-5" />
-              Admin Dashboard
+              Tableau de Bord Admin
             </Button>
             <Button
               size="lg"
@@ -34,7 +37,7 @@ const Index = () => {
               className="gap-2"
             >
               <Award className="h-5 w-5" />
-              Judge Portal
+              Portail Jury
             </Button>
           </div>
         </div>
@@ -44,11 +47,11 @@ const Index = () => {
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <Shield className="h-10 w-10 text-primary mb-4" />
-              <CardTitle>Admin Control</CardTitle>
+              <CardTitle>Contrôle Admin</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                Manage teams, judges, and view real-time rankings all from a powerful admin dashboard
+                Gérez les équipes, les jurys et consultez les classements en temps réel depuis un tableau de bord admin puissant
               </p>
             </CardContent>
           </Card>
@@ -56,11 +59,11 @@ const Index = () => {
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <Award className="h-10 w-10 text-success mb-4" />
-              <CardTitle>Easy Judging</CardTitle>
+              <CardTitle>Évaluation Facile</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                Intuitive evaluation interface with weighted scoring across multiple criteria
+                Interface d'évaluation intuitive avec notation pondérée selon plusieurs critères
               </p>
             </CardContent>
           </Card>
@@ -68,11 +71,11 @@ const Index = () => {
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <TrendingUp className="h-10 w-10 text-warning mb-4" />
-              <CardTitle>Live Rankings</CardTitle>
+              <CardTitle>Classements en Direct</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                Real-time WebSocket updates show rankings as judges submit their evaluations
+                Mises à jour WebSocket en temps réel affichant les classements au fur et à mesure des soumissions des jurys
               </p>
             </CardContent>
           </Card>

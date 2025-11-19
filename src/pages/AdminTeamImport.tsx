@@ -31,8 +31,8 @@ const AdminTeamImport = () => {
     if (selectedFile) {
       if (selectedFile.type !== "text/csv" && !selectedFile.name.endsWith(".csv")) {
         toast({
-          title: "Invalid file type",
-          description: "Please select a CSV file",
+          title: "Type de fichier invalide",
+          description: "Veuillez sélectionner un fichier CSV",
           variant: "destructive",
         });
         return;
@@ -46,8 +46,8 @@ const AdminTeamImport = () => {
   const handlePreview = async () => {
     if (!file) {
       toast({
-        title: "No file selected",
-        description: "Please select a CSV file first",
+        title: "Aucun fichier sélectionné",
+        description: "Veuillez d'abord sélectionner un fichier CSV",
         variant: "destructive",
       });
       return;
@@ -62,9 +62,9 @@ const AdminTeamImport = () => {
       setPreview(result as CSVUploadPreviewResponse);
       setCommitResult(null);
     } catch (error: any) {
-      const errorMessage = error?.error || error?.detail || error?.message || "Failed to preview CSV";
+      const errorMessage = error?.error || error?.detail || error?.message || "Échec de l'aperçu du CSV";
       toast({
-        title: "Preview failed",
+        title: "Échec de l'aperçu",
         description: errorMessage,
         variant: "destructive",
       });
@@ -85,8 +85,8 @@ const AdminTeamImport = () => {
 
     if (!preview) {
       toast({
-        title: "No preview",
-        description: "Please preview the CSV file first",
+        title: "Aucun aperçu",
+        description: "Veuillez d'abord prévisualiser le fichier CSV",
         variant: "destructive",
       });
       return;
@@ -101,7 +101,7 @@ const AdminTeamImport = () => {
       setCommitResult(result as CSVUploadCommitResponse);
       
       toast({
-        title: "Teams imported successfully",
+        title: "Équipes importées avec succès",
         description: result.message,
       });
       
@@ -110,9 +110,9 @@ const AdminTeamImport = () => {
         navigate("/admin/teams");
       }, 2000);
     } catch (error: any) {
-      const errorMessage = error?.error || error?.detail || error?.message || "Failed to import teams";
+      const errorMessage = error?.error || error?.detail || error?.message || "Échec de l'importation des équipes";
       toast({
-        title: "Import failed",
+        title: "Échec de l'importation",
         description: errorMessage,
         variant: "destructive",
       });
@@ -132,23 +132,23 @@ const AdminTeamImport = () => {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">Import Teams from CSV</h1>
+          <h1 className="text-3xl font-bold">Importer Équipes depuis CSV</h1>
           <p className="text-muted-foreground mt-1">
-            Upload a CSV file to import multiple teams at once
+            Téléchargez un fichier CSV pour importer plusieurs équipes à la fois
           </p>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>CSV File Upload</CardTitle>
+          <CardTitle>Téléchargement Fichier CSV</CardTitle>
           <CardDescription>
-            Select a CSV file and preview it before importing
+            Sélectionnez un fichier CSV et prévisualisez-le avant l'importation
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="csv-file">CSV File</Label>
+            <Label htmlFor="csv-file">Fichier CSV</Label>
             <div className="flex items-center gap-4">
               <Input
                 id="csv-file"
@@ -167,23 +167,23 @@ const AdminTeamImport = () => {
             </div>
             <div className="space-y-2">
               <p className="text-xs text-muted-foreground">
-                CSV format should match the application form with columns: Project Title, Team Leader info, Team Members, Project Domain, Project Summary, etc.
+                Le format CSV doit correspondre au formulaire de candidature avec les colonnes : Titre du Projet, Informations du Chef d'Équipe, Membres de l'Équipe, Domaine du Projet, Résumé du Projet, etc.
               </p>
               <details className="text-xs">
                 <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
-                  View CSV format requirements
+                  Voir les exigences de format CSV
                 </summary>
                 <div className="mt-2 p-3 bg-muted rounded-lg">
-                  <p className="text-xs mb-2">Required columns:</p>
+                  <p className="text-xs mb-2">Colonnes requises :</p>
                   <ul className="list-disc list-inside text-xs space-y-1">
-                    <li>Project Title</li>
-                    <li>Team Leader: Full Name</li>
-                    <li>Team Leader: Year of Study</li>
-                    <li>Team Leader: Email address</li>
-                    <li>Team Leader: Phone Number</li>
-                    <li>Team Members (name and year, one per line)</li>
-                    <li>Project Domain</li>
-                    <li>Project Summary (100-150 words)</li>
+                    <li>Titre du Projet</li>
+                    <li>Chef d'Équipe : Nom Complet</li>
+                    <li>Chef d'Équipe : Année d'Études</li>
+                    <li>Chef d'Équipe : Adresse Email</li>
+                    <li>Chef d'Équipe : Numéro de Téléphone</li>
+                    <li>Membres de l'Équipe (nom et année, un par ligne)</li>
+                    <li>Domaine du Projet</li>
+                    <li>Résumé du Projet (100-150 mots)</li>
                   </ul>
                 </div>
               </details>
@@ -197,7 +197,7 @@ const AdminTeamImport = () => {
               onClick={() => navigate("/admin/teams")}
               disabled={isLoading}
             >
-              Cancel
+              Annuler
             </Button>
             <Button
               type="button"
@@ -205,7 +205,7 @@ const AdminTeamImport = () => {
               disabled={!file || isLoading}
             >
               <Upload className="h-4 w-4 mr-2" />
-              {isLoading ? "Processing..." : "Preview"}
+              {isLoading ? "Traitement..." : "Prévisualiser"}
             </Button>
           </div>
 
@@ -213,18 +213,18 @@ const AdminTeamImport = () => {
             <div className="space-y-4">
               <Alert>
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Preview Mode</AlertTitle>
+                <AlertTitle>Mode Prévisualisation</AlertTitle>
                 <AlertDescription>
-                  {preview.message || "Review the data below. Click 'Import Teams' to commit."}
+                  {preview.message || "Vérifiez les données ci-dessous. Cliquez sur 'Importer Équipes' pour valider."}
                 </AlertDescription>
               </Alert>
 
               <div className="space-y-2">
                 <p className="text-sm font-medium">
-                  Total Rows: {preview.total_rows}
+                  Total Lignes : {preview.total_rows}
                   {preview.errors.length > 0 && (
                     <span className="text-destructive ml-2">
-                      ({preview.errors.length} errors)
+                      ({preview.errors.length} erreurs)
                     </span>
                   )}
                 </p>
@@ -232,7 +232,7 @@ const AdminTeamImport = () => {
                 {preview.errors.length > 0 && (
                   <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Errors Found</AlertTitle>
+                    <AlertTitle>Erreurs Trouvées</AlertTitle>
                     <AlertDescription>
                       <ul className="list-disc list-inside mt-2">
                         {preview.errors.map((error, index) => (
@@ -248,11 +248,11 @@ const AdminTeamImport = () => {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Project Name</TableHead>
-                          <TableHead>Domain</TableHead>
-                          <TableHead>Team Leader</TableHead>
+                          <TableHead>Nom du Projet</TableHead>
+                          <TableHead>Domaine</TableHead>
+                          <TableHead>Chef d'Équipe</TableHead>
                           <TableHead>Description</TableHead>
-                          <TableHead>Members</TableHead>
+                          <TableHead>Membres</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -292,7 +292,7 @@ const AdminTeamImport = () => {
                   className="w-full"
                 >
                   <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Import {preview.total_rows} Teams
+                  Importer {preview.total_rows} Équipes
                 </Button>
               </div>
             </div>
@@ -301,12 +301,12 @@ const AdminTeamImport = () => {
           {commitResult && (
             <Alert className="border-green-500 bg-green-50 dark:bg-green-950">
               <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-              <AlertTitle className="text-green-800 dark:text-green-200">Import Successful!</AlertTitle>
+              <AlertTitle className="text-green-800 dark:text-green-200">Importation Réussie !</AlertTitle>
               <AlertDescription>
                 <p className="mt-2">{commitResult.message}</p>
                 {commitResult.created.length > 0 && (
                   <div className="mt-4">
-                    <p className="font-medium mb-2">Created Teams:</p>
+                    <p className="font-medium mb-2">Équipes Créées :</p>
                     <ul className="list-disc list-inside">
                       {commitResult.created.map((team) => (
                         <li key={team.id}>{team.project_name}</li>
@@ -316,7 +316,7 @@ const AdminTeamImport = () => {
                 )}
                 {commitResult.errors.length > 0 && (
                   <div className="mt-4">
-                    <p className="font-medium text-destructive mb-2">Errors:</p>
+                    <p className="font-medium text-destructive mb-2">Erreurs :</p>
                     <ul className="list-disc list-inside">
                       {commitResult.errors.map((error, index) => (
                         <li key={index}>{error}</li>

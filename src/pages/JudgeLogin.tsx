@@ -28,8 +28,8 @@ const JudgeLogin = () => {
     
     if (!loginToken) {
       toast({
-        title: "Token required",
-        description: "Please enter your judge token",
+        title: "Jeton requis",
+        description: "Veuillez entrer votre jeton de jury",
         variant: "destructive",
       });
       return;
@@ -42,15 +42,15 @@ const JudgeLogin = () => {
       const response = await judgeLogin({ token: loginToken });
       
       toast({
-        title: "Login successful",
-        description: `Welcome, ${response.judge.name}!`,
+        title: "Connexion réussie",
+        description: `Bienvenue, ${response.judge.name}!`,
       });
       
       navigate("/judge/teams");
     } catch (error: any) {
-      const errorMessage = error?.error || error?.detail || "Invalid token. Please check and try again.";
+      const errorMessage = error?.error || error?.detail || "Jeton invalide. Veuillez vérifier et réessayer.";
       toast({
-        title: "Login failed",
+        title: "Échec de connexion",
         description: errorMessage,
         variant: "destructive",
       });
@@ -63,29 +63,29 @@ const JudgeLogin = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-success/10 p-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-2 text-center">
-          <div className="mx-auto w-12 h-12 bg-gradient-to-br from-primary to-success rounded-full flex items-center justify-center mb-2">
-            <Award className="w-6 h-6 text-white" />
+          <div className="mx-auto mb-4">
+            <img src="/logo/logo-algeria20.svg" alt="Algeria 2.0" className="h-16 w-16 mx-auto" />
           </div>
-          <CardTitle className="text-2xl font-bold">Judge Portal</CardTitle>
+          <CardTitle className="text-2xl font-bold">Portail Jury</CardTitle>
           <CardDescription>
-            Enter your unique token to access the evaluation platform
+            Entrez votre jeton unique pour accéder à la plateforme d'évaluation
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="token">Access Token</Label>
+              <Label htmlFor="token">Jeton d'Accès</Label>
               <Input
                 id="token"
                 type="text"
-                placeholder="Enter your UUID token"
+                placeholder="Entrez votre jeton UUID"
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
                 required
                 className="font-mono"
               />
               <p className="text-xs text-muted-foreground">
-                Your token was provided by the event organizer
+                Votre jeton a été fourni par l'organisateur de l'événement
               </p>
             </div>
             <Button
@@ -93,7 +93,7 @@ const JudgeLogin = () => {
               className="w-full"
               disabled={isLoading}
             >
-              {isLoading ? "Verifying..." : "Continue to Evaluation"}
+              {isLoading ? "Vérification..." : "Continuer vers l'Évaluation"}
             </Button>
           </form>
         </CardContent>

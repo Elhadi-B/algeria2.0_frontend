@@ -40,8 +40,8 @@ const AdminRanking = () => {
           console.log("Ranking update received:", data.ranking);
           setRankings(data.ranking);
           toast({
-            title: "Rankings updated",
-            description: "New scores have been received",
+            title: "Classements mis à jour",
+            description: "De nouveaux scores ont été reçus",
           });
         }
       },
@@ -53,8 +53,8 @@ const AdminRanking = () => {
         console.error("WebSocket error:", error);
         setIsConnected(false);
         toast({
-          title: "WebSocket connection error",
-          description: "Real-time updates are not available. Please refresh manually.",
+          title: "Erreur de connexion WebSocket",
+          description: "Les mises à jour en temps réel ne sont pas disponibles. Veuillez actualiser manuellement.",
           variant: "destructive",
         });
       },
@@ -88,8 +88,8 @@ const AdminRanking = () => {
       setRankings(data);
     } catch (error: any) {
       toast({
-        title: "Failed to load rankings",
-        description: error?.error || error?.detail || "Please try again",
+        title: "Échec du chargement des classements",
+        description: error?.error || error?.detail || "Veuillez réessayer",
         variant: "destructive",
       });
     } finally {
@@ -101,13 +101,13 @@ const AdminRanking = () => {
     try {
       await adminExportCSV();
       toast({
-        title: "Export started",
-        description: "CSV file download should begin shortly",
+        title: "Exportation démarrée",
+        description: "Le téléchargement du fichier CSV devrait commencer sous peu",
       });
     } catch (error: any) {
       toast({
-        title: "Export failed",
-        description: error?.error || error?.detail || "Please try again",
+        title: "Échec de l'exportation",
+        description: error?.error || error?.detail || "Veuillez réessayer",
         variant: "destructive",
       });
     }
@@ -117,34 +117,34 @@ const AdminRanking = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Rankings</h1>
+          <h1 className="text-3xl font-bold">Classements</h1>
           <p className="text-muted-foreground mt-1">
-            Real-time team rankings and scores
+            Classements et scores des équipes en temps réel
           </p>
         </div>
         <div className="flex gap-2 items-center">
           <Badge variant={isConnected ? "default" : "secondary"}>
-            {isConnected ? "● Live" : "○ Disconnected"}
+            {isConnected ? "● En Direct" : "○ Déconnecté"}
           </Badge>
           <Button variant="outline" onClick={exportCSV}>
             <Download className="h-4 w-4 mr-2" />
-            Export CSV
+            Exporter CSV
           </Button>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Overall Rankings</CardTitle>
+          <CardTitle>Classements Généraux</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-16">Rank</TableHead>
-                <TableHead>Team Name</TableHead>
-                <TableHead className="text-right">Avg Score</TableHead>
-                <TableHead className="text-right">Evaluations</TableHead>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-16">Rang</TableHead>
+                  <TableHead>Nom de l'Équipe</TableHead>
+                  <TableHead className="text-right">Score Moy</TableHead>
+                  <TableHead className="text-right">Évaluations</TableHead>
                 {criteria.map((criterion) => (
                   <TableHead key={criterion.id} className="text-right">
                     {criterion.name}
@@ -156,13 +156,13 @@ const AdminRanking = () => {
               {isLoading ? (
                 <TableRow>
                   <TableCell colSpan={4 + criteria.length} className="text-center py-8 text-muted-foreground">
-                    Loading rankings...
+                    Chargement des classements...
                   </TableCell>
                 </TableRow>
               ) : rankings.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4 + criteria.length} className="text-center py-8 text-muted-foreground">
-                    No rankings available yet
+                    Aucun classement disponible pour le moment
                   </TableCell>
                 </TableRow>
               ) : (

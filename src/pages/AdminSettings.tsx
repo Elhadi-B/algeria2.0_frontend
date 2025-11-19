@@ -62,8 +62,8 @@ const AdminSettings = () => {
       setCriteria(sorted);
     } catch (error: any) {
       toast({
-        title: "Failed to load criteria",
-        description: error?.error || error?.detail || "Please try again",
+        title: "Échec du chargement des critères",
+        description: error?.error || error?.detail || "Veuillez réessayer",
         variant: "destructive",
       });
     } finally {
@@ -115,24 +115,24 @@ const AdminSettings = () => {
         // Update existing criterion
         await adminUpdateCriterion(editingCriterion.id, formData);
         toast({
-          title: "Criterion updated",
-          description: `"${formData.name}" has been updated successfully`,
+          title: "Critère mis à jour",
+          description: `"${formData.name}" a été mis à jour avec succès`,
         });
       } else {
         // Create new criterion
         await adminCreateCriterion(formData);
         toast({
-          title: "Criterion created",
-          description: `"${formData.name}" has been added successfully`,
+          title: "Critère créé",
+          description: `"${formData.name}" a été ajouté avec succès`,
         });
       }
       
       handleCloseDialog();
       loadCriteria();
     } catch (error: any) {
-      const errorMessage = error?.error || error?.detail || error?.message || "Failed to save criterion";
+      const errorMessage = error?.error || error?.detail || error?.message || "Échec de l'enregistrement du critère";
       toast({
-        title: editingCriterion ? "Failed to update criterion" : "Failed to create criterion",
+        title: editingCriterion ? "Échec de la mise à jour du critère" : "Échec de la création du critère",
         description: errorMessage,
         variant: "destructive",
       });
@@ -148,13 +148,13 @@ const AdminSettings = () => {
         prev.map((c) => (c.id === id ? { ...c, weight: newWeight } : c))
       );
       toast({
-        title: "Weight updated",
-        description: "Criterion weight has been updated",
+        title: "Poids mis à jour",
+        description: "Le poids du critère a été mis à jour",
       });
     } catch (error: any) {
       toast({
-        title: "Failed to update weight",
-        description: error?.error || error?.detail || "Please try again",
+        title: "Échec de la mise à jour du poids",
+        description: error?.error || error?.detail || "Veuillez réessayer",
         variant: "destructive",
       });
     }
@@ -164,15 +164,15 @@ const AdminSettings = () => {
     try {
       await adminDeleteCriterion(criterion.id);
       toast({
-        title: "Criterion deleted",
-        description: `"${criterion.name}" has been removed`,
+        title: "Critère supprimé",
+        description: `"${criterion.name}" a été retiré`,
       });
       setDeleteConfirm(null);
       loadCriteria();
     } catch (error: any) {
       toast({
-        title: "Failed to delete criterion",
-        description: error?.error || error?.detail || "Please try again",
+        title: "Échec de la suppression du critère",
+        description: error?.error || error?.detail || "Veuillez réessayer",
         variant: "destructive",
       });
     }
@@ -186,14 +186,14 @@ const AdminSettings = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Event Settings</h1>
+          <h1 className="text-3xl font-bold">Paramètres de l'Événement</h1>
           <p className="text-muted-foreground mt-1">
-            Manage evaluation criteria and scoring weights
+            Gérer les critères d'évaluation et les pondérations de notation
           </p>
         </div>
         <Button onClick={() => handleOpenDialog()}>
           <Plus className="h-4 w-4 mr-2" />
-          Add Criterion
+          Ajouter Critère
         </Button>
       </div>
 
@@ -201,19 +201,19 @@ const AdminSettings = () => {
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle>Evaluation Criteria</CardTitle>
+              <CardTitle>Critères d'Évaluation</CardTitle>
               <CardDescription>
-                Configure the criteria judges will use to evaluate teams
+                Configurer les critères que les jurys utiliseront pour évaluer les équipes
               </CardDescription>
             </div>
             <div className="text-sm">
-              <span className="font-medium">Total Weight: </span>
+              <span className="font-medium">Poids Total : </span>
               <span className={totalWeight === 1 ? "text-green-600" : "text-yellow-600"}>
                 {totalWeight.toFixed(2)}
               </span>
               {totalWeight !== 1 && (
                 <span className="text-xs text-muted-foreground ml-2">
-                  (Should equal 1.0)
+                  (Devrait égaler 1.0)
                 </span>
               )}
             </div>
@@ -226,14 +226,14 @@ const AdminSettings = () => {
             </div>
           ) : criteria.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No criteria defined yet</p>
+              <p className="text-muted-foreground">Aucun critère défini pour le moment</p>
               <Button
                 variant="outline"
                 className="mt-4"
                 onClick={() => handleOpenDialog()}
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add First Criterion
+                Ajouter Premier Critère
               </Button>
             </div>
           ) : (
@@ -251,7 +251,7 @@ const AdminSettings = () => {
                           <div>
                             <h3 className="font-semibold text-lg">{criterion.name}</h3>
                             <p className="text-xs text-muted-foreground">
-                              Key: <code className="bg-muted px-1 rounded">{criterion.key}</code>
+                              Clé : <code className="bg-muted px-1 rounded">{criterion.key}</code>
                             </p>
                           </div>
                           <div className="flex items-center gap-2">
@@ -320,38 +320,38 @@ const AdminSettings = () => {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>
-              {editingCriterion ? "Edit Criterion" : "Create New Criterion"}
+              {editingCriterion ? "Modifier Critère" : "Créer Nouveau Critère"}
             </DialogTitle>
             <DialogDescription>
               {editingCriterion
-                ? "Update the criterion details below"
-                : "Add a new evaluation criterion for judges"}
+                ? "Mettre à jour les détails du critère ci-dessous"
+                : "Ajouter un nouveau critère d'évaluation pour les jurys"}
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="key">Criterion Key *</Label>
+              <Label htmlFor="key">Clé du Critère *</Label>
               <Input
                 id="key"
                 value={formData.key}
                 onChange={(e) => setFormData({ ...formData, key: e.target.value })}
-                placeholder="e.g., innovation, impact, feasibility"
+                placeholder="ex : innovation, impact, faisabilité"
                 required
                 disabled={isSubmitting}
               />
               <p className="text-xs text-muted-foreground">
-                Unique identifier (lowercase, no spaces)
+                Identifiant unique (minuscules, pas d'espaces)
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="name">Criterion Name *</Label>
+              <Label htmlFor="name">Nom du Critère *</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="e.g., Innovation"
+                placeholder="ex : Innovation"
                 required
                 disabled={isSubmitting}
               />
@@ -363,7 +363,7 @@ const AdminSettings = () => {
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Describe what judges should evaluate"
+                placeholder="Décrivez ce que les jurys doivent évaluer"
                 rows={3}
                 required
                 disabled={isSubmitting}
@@ -372,7 +372,7 @@ const AdminSettings = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="weight">Weight *</Label>
+                <Label htmlFor="weight">Poids *</Label>
                 <Input
                   id="weight"
                   type="number"
@@ -387,12 +387,12 @@ const AdminSettings = () => {
                   disabled={isSubmitting}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Weight in final score (0.0 - 1.0)
+                  Poids dans le score final (0.0 - 1.0)
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="order">Display Order *</Label>
+                <Label htmlFor="order">Ordre d'Affichage *</Label>
                 <Input
                   id="order"
                   type="number"
@@ -405,7 +405,7 @@ const AdminSettings = () => {
                   disabled={isSubmitting}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Order in evaluation form
+                  Ordre dans le formulaire d'évaluation
                 </p>
               </div>
             </div>
@@ -417,15 +417,15 @@ const AdminSettings = () => {
                 onClick={handleCloseDialog}
                 disabled={isSubmitting}
               >
-                Cancel
+                Annuler
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 <Save className="h-4 w-4 mr-2" />
                 {isSubmitting
-                  ? "Saving..."
+                  ? "Enregistrement..."
                   : editingCriterion
-                  ? "Update Criterion"
-                  : "Create Criterion"}
+                  ? "Mettre à Jour Critère"
+                  : "Créer Critère"}
               </Button>
             </DialogFooter>
           </form>
@@ -436,19 +436,19 @@ const AdminSettings = () => {
       <AlertDialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the criterion "{deleteConfirm?.name}". All existing
-              evaluations using this criterion will be affected. This action cannot be undone.
+              Cela supprimera définitivement le critère "{deleteConfirm?.name}". Toutes les
+              évaluations existantes utilisant ce critère seront affectées. Cette action ne peut pas être annulée.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deleteConfirm && handleDelete(deleteConfirm)}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              Supprimer
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

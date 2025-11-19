@@ -32,8 +32,8 @@ const AdminJudges = () => {
       setJudges(data);
     } catch (error: any) {
       toast({
-        title: "Failed to load judges",
-        description: error?.error || error?.detail || "Please try again",
+        title: "Échec du chargement des jurys",
+        description: error?.error || error?.detail || "Veuillez réessayer",
         variant: "destructive",
       });
     } finally {
@@ -80,8 +80,8 @@ const AdminJudges = () => {
 
     navigator.clipboard.writeText(token);
     toast({
-      title: "Token copied",
-      description: "Judge token copied to clipboard",
+      title: "Jeton copié",
+      description: "Jeton du jury copié dans le presse-papiers",
     });
   };
 
@@ -89,8 +89,8 @@ const AdminJudges = () => {
     try {
       const response = await adminRegenerateToken(judgeId);
       toast({
-        title: "Token regenerated",
-        description: `New token generated for ${judgeName}`,
+        title: "Jeton regénéré",
+        description: `Nouveau jeton généré pour ${judgeName}`,
       });
       
       // Update the judge in the list
@@ -120,15 +120,15 @@ const AdminJudges = () => {
   };
 
   const handleDelete = async (id: number, judgeName: string) => {
-    if (!confirm(`Are you sure you want to delete "${judgeName}"?`)) {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer "${judgeName}" ?`)) {
       return;
     }
 
     try {
       await adminDeleteJudge(id);
       toast({
-        title: "Judge deleted",
-        description: `"${judgeName}" has been removed`,
+        title: "Jury supprimé",
+        description: `"${judgeName}" a été retiré`,
       });
       loadJudges();
     } catch (error: any) {
@@ -144,14 +144,14 @@ const AdminJudges = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Judges</h1>
+          <h1 className="text-3xl font-bold">Jurys</h1>
           <p className="text-muted-foreground mt-1">
-            Manage event judges and authentication
+            Gérer les jurys de l'événement et l'authentification
           </p>
         </div>
         <Button onClick={() => navigate("/admin/judges/new")}>
           <Plus className="h-4 w-4 mr-2" />
-          Add Judge
+          Ajouter Jury
         </Button>
       </div>
 
@@ -159,7 +159,7 @@ const AdminJudges = () => {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search judges..."
+            placeholder="Rechercher des jurys..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -169,7 +169,7 @@ const AdminJudges = () => {
 
       {isLoading ? (
         <Card className="p-12 text-center">
-          <p className="text-muted-foreground">Loading judges...</p>
+          <p className="text-muted-foreground">Chargement des jurys...</p>
         </Card>
       ) : (
         <div className="grid gap-4">
@@ -189,7 +189,7 @@ const AdminJudges = () => {
                       </p>
                     </div>
                     <Badge variant={judge.active ? "default" : "secondary"}>
-                      {judge.active ? "Active" : "Inactive"}
+                      {judge.active ? "Actif" : "Inactif"}
                     </Badge>
                   </div>
                 </CardHeader>
@@ -200,13 +200,13 @@ const AdminJudges = () => {
                   </div>
                   {judge.phone && (
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Phone</p>
+                      <p className="text-sm font-medium text-muted-foreground">Téléphone</p>
                       <p className="text-sm">{judge.phone}</p>
                     </div>
                   )}
                   
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Access Token</p>
+                    <p className="text-sm font-medium text-muted-foreground">Jeton d'Accès</p>
                     <div className="flex gap-2">
                       <Input
                         value={displayToken}
@@ -231,10 +231,10 @@ const AdminJudges = () => {
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground mb-2">Judge Login Link</p>
+                    <p className="text-sm font-medium text-muted-foreground mb-2">Lien de Connexion Jury</p>
                     <div className="flex gap-2">
                       <Input
-                        value={displayToken !== "***" ? loginLink : "Click copy to get token first"}
+                        value={displayToken !== "***" ? loginLink : "Cliquez sur copier pour obtenir d'abord le jeton"}
                         readOnly
                         className="text-xs"
                       />
@@ -245,8 +245,8 @@ const AdminJudges = () => {
                           onClick={() => {
                             navigator.clipboard.writeText(loginLink);
                             toast({
-                              title: "Link copied",
-                              description: "Judge login link copied to clipboard",
+                              title: "Lien copié",
+                              description: "Lien de connexion du jury copié dans le presse-papiers",
                             });
                           }}
                         >
@@ -264,10 +264,10 @@ const AdminJudges = () => {
 
       {filteredJudges.length === 0 && (
         <Card className="p-12 text-center">
-          <p className="text-muted-foreground">No judges found</p>
+          <p className="text-muted-foreground">Aucun jury trouvé</p>
           <Button className="mt-4" onClick={() => navigate("/admin/judges/new")}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Your First Judge
+            Ajouter Votre Premier Jury
           </Button>
         </Card>
       )}

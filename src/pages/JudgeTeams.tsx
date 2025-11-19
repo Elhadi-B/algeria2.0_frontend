@@ -96,8 +96,8 @@ const JudgeTeams = () => {
       setTeams(teamsWithEvaluation);
     } catch (error: any) {
       toast({
-        title: "Failed to load teams",
-        description: error?.error || error?.detail || "Please try again",
+        title: "Échec du chargement des équipes",
+        description: error?.error || error?.detail || "Veuillez réessayer",
         variant: "destructive",
       });
     } finally {
@@ -142,12 +142,12 @@ const JudgeTeams = () => {
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <Award className="h-6 w-6 text-primary" />
-              <h1 className="text-xl font-bold">Pitch Judging</h1>
+            <div className="flex items-center gap-3">
+              <img src="/logo/logo-algeria20.svg" alt="Algeria 2.0" className="h-16 w-16" />
+              <h1 className="text-xl font-bold">Évaluation Hackathon</h1>
             </div>
             <Button variant="outline" onClick={handleLogout}>
-              Logout
+              Déconnexion
             </Button>
           </div>
         </div>
@@ -157,9 +157,9 @@ const JudgeTeams = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="space-y-6">
           <div>
-            <h2 className="text-3xl font-bold">Teams to Evaluate</h2>
+            <h2 className="text-3xl font-bold">Équipes à Évaluer</h2>
             <p className="text-muted-foreground mt-1">
-              Select a team to view details and submit your evaluation
+              Sélectionnez une équipe pour voir les détails et soumettre votre évaluation
             </p>
           </div>
 
@@ -167,7 +167,7 @@ const JudgeTeams = () => {
             <div className="relative max-w-md flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search teams or enter team ID..."
+                placeholder="Rechercher des équipes ou entrer l'ID de l'équipe..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -182,21 +182,21 @@ const JudgeTeams = () => {
                   className={viewMode === "all" ? "" : "bg-transparent text-muted-foreground hover:text-foreground"}
                   onClick={() => setViewMode("all")}
                 >
-                  All
+                  Toutes
                 </Button>
                 <Button
                   size="sm"
                   className={viewMode === "pending" ? "" : "bg-transparent text-muted-foreground hover:text-foreground"}
                   onClick={() => setViewMode("pending")}
                 >
-                  Pending
+                  En Attente
                 </Button>
                 <Button
                   size="sm"
                   className={viewMode === "evaluated" ? "" : "bg-transparent text-muted-foreground hover:text-foreground"}
                   onClick={() => setViewMode("evaluated")}
                 >
-                  Evaluated
+                  Évaluées
                 </Button>
               </div>
 
@@ -231,9 +231,9 @@ const JudgeTeams = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-16">ID</TableHead>
-                      <TableHead>Project</TableHead>
+                      <TableHead>Projet</TableHead>
                       <TableHead className="w-24">Score</TableHead>
-                      <TableHead className="w-32">Status</TableHead>
+                      <TableHead className="w-32">Statut</TableHead>
                       <TableHead className="w-32 text-right">Action</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -265,17 +265,17 @@ const JudgeTeams = () => {
                         <TableCell>
                           {team.hasEvaluation ? (
                             <Badge className="bg-success text-success-foreground">
-                              Evaluated
+                              Évaluée
                             </Badge>
                           ) : (
                             <Badge className="bg-warning text-warning-foreground">
-                              Pending
+                              En Attente
                             </Badge>
                           )}
                         </TableCell>
                         <TableCell className="text-right">
                           <Button size="sm" variant={team.hasEvaluation ? "outline" : "default"}>
-                            {team.hasEvaluation ? "Edit" : "Evaluate"}
+                            {team.hasEvaluation ? "Modifier" : "Évaluer"}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -309,7 +309,7 @@ const JudgeTeams = () => {
                       {team.short_description}
                     </p>
                     <Button className="w-full mt-2" variant={team.hasEvaluation ? "outline" : "default"}>
-                      {team.hasEvaluation ? "Edit Evaluation" : "Evaluate Now"}
+                      {team.hasEvaluation ? "Modifier Évaluation" : "Évaluer Maintenant"}
                     </Button>
                   </CardContent>
                 </Card>

@@ -56,8 +56,8 @@ const AdminDashboard = () => {
       } catch (error: any) {
         console.error("Failed to fetch dashboard data:", error);
         toast({
-          title: "Failed to load dashboard",
-          description: error?.error || error?.message || "Could not fetch dashboard data",
+          title: "Échec du chargement du tableau de bord",
+          description: error?.error || error?.message || "Impossible de récupérer les données du tableau de bord",
           variant: "destructive",
         });
       } finally {
@@ -70,31 +70,31 @@ const AdminDashboard = () => {
 
   const statCards = [
     {
-      title: "Total Teams",
+      title: "Total Équipes",
       value: stats.totalTeams,
       icon: Users,
-      description: "Registered teams",
+      description: "Équipes inscrites",
       color: "text-primary",
     },
     {
-      title: "Total Judges",
+      title: "Total Jurys",
       value: stats.totalJudges,
       icon: FileText,
-      description: "Active judges",
+      description: "Jurys actifs",
       color: "text-success",
     },
     {
-      title: "Evaluations",
+      title: "Évaluations",
       value: stats.totalEvaluations,
       icon: CheckCircle,
-      description: "Submitted evaluations",
+      description: "Évaluations soumises",
       color: "text-warning",
     },
     {
-      title: "Average Score",
+      title: "Score Moyen",
       value: stats.averageScore.toFixed(1),
       icon: TrendingUp,
-      description: "Overall average",
+      description: "Moyenne générale",
       color: "text-primary",
     },
   ];
@@ -102,9 +102,9 @@ const AdminDashboard = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <h1 className="text-3xl font-bold">Tableau de Bord</h1>
         <p className="text-muted-foreground mt-1">
-          Overview of your pitch judging event
+          Aperçu de votre événement hackathon
         </p>
       </div>
 
@@ -138,36 +138,36 @@ const AdminDashboard = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
+              <CardTitle>Actions Rapides</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
                 <a
                   href="/admin/actions"
                   className="block p-3 rounded-lg border hover:bg-accent transition-colors"
                 >
-                  <h3 className="font-medium">View Recent Evaluations</h3>
-                  <p className="text-sm text-muted-foreground">See latest judge submissions and feedback</p>
+                  <h3 className="font-medium">Voir les Évaluations Récentes</h3>
+                  <p className="text-sm text-muted-foreground">Consultez les dernières soumissions et commentaires des jurys</p>
                 </a>
                 <a
                   href="/admin/teams/import"
                   className="block p-3 rounded-lg border hover:bg-accent transition-colors"
                 >
-                  <h3 className="font-medium">Import Teams</h3>
-                  <p className="text-sm text-muted-foreground">Upload CSV to add multiple teams</p>
+                  <h3 className="font-medium">Importer des Équipes</h3>
+                  <p className="text-sm text-muted-foreground">Télécharger un CSV pour ajouter plusieurs équipes</p>
                 </a>
                 <a
                   href="/admin/judges"
                   className="block p-3 rounded-lg border hover:bg-accent transition-colors"
                 >
-                  <h3 className="font-medium">Manage Judges</h3>
-                  <p className="text-sm text-muted-foreground">Create and manage judge accounts</p>
+                  <h3 className="font-medium">Gérer les Jurys</h3>
+                  <p className="text-sm text-muted-foreground">Créer et gérer les comptes jurys</p>
                 </a>
                 <a
                   href="/admin/ranking"
                   className="block p-3 rounded-lg border hover:bg-accent transition-colors"
                 >
-                  <h3 className="font-medium">View Rankings</h3>
-                  <p className="text-sm text-muted-foreground">See live team rankings and scores</p>
+                  <h3 className="font-medium">Voir les Classements</h3>
+                  <p className="text-sm text-muted-foreground">Consultez les classements et scores des équipes en direct</p>
                 </a>
               </CardContent>
             </Card>

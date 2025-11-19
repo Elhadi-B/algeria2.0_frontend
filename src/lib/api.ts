@@ -24,8 +24,8 @@ import type {
   ApiError,
 } from "./types";
 
-const API_BASE_URL = "http://localhost:9090/api";
-//const API_BASE_URL = "http://localhost:8000/api";
+//const API_BASE_URL = "http://localhost:9090/api";
+const API_BASE_URL = "http://localhost:8000/api";
 
 // Helper function to get CSRF token from cookies
 const getCsrfToken = (): string | null => {

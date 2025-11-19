@@ -45,9 +45,9 @@ const AdminTeamEdit = () => {
         project_domain: team.project_domain,
       });
     } catch (error: any) {
-      const errorMessage = error?.error || error?.detail || error?.message || "Failed to load team";
+      const errorMessage = error?.error || error?.detail || error?.message || "Échec du chargement de l'équipe";
       toast({
-        title: "Failed to load team",
+        title: "Échec du chargement de l'équipe",
         description: errorMessage,
         variant: "destructive",
       });
@@ -75,15 +75,15 @@ const AdminTeamEdit = () => {
       await adminUpdateTeam(parseInt(id), submitData);
       
       toast({
-        title: "Team updated",
-        description: `"${formData.project_name}" has been updated successfully`,
+        title: "Équipe mise à jour",
+        description: `"${formData.project_name}" a été mise à jour avec succès`,
       });
       
       navigate("/admin/teams");
     } catch (error: any) {
-      const errorMessage = error?.error || error?.detail || error?.message || "Failed to update team";
+      const errorMessage = error?.error || error?.detail || error?.message || "Échec de la mise à jour de l'équipe";
       toast({
-        title: "Failed to update team",
+        title: "Échec de la mise à jour de l'équipe",
         description: errorMessage,
         variant: "destructive",
       });
@@ -96,7 +96,7 @@ const AdminTeamEdit = () => {
     return (
       <div className="space-y-6">
         <Card className="p-12 text-center">
-          <p className="text-muted-foreground">Loading team details...</p>
+          <p className="text-muted-foreground">Chargement des détails de l'équipe...</p>
         </Card>
       </div>
     );
@@ -113,18 +113,18 @@ const AdminTeamEdit = () => {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">Edit Team</h1>
+          <h1 className="text-3xl font-bold">Modifier Équipe</h1>
           <p className="text-muted-foreground mt-1">
-            Update team information
+            Mettre à jour les informations de l'équipe
           </p>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Team Information</CardTitle>
+          <CardTitle>Informations de l'Équipe</CardTitle>
           <CardDescription>
-            Update the details for this team
+            Mettre à jour les détails de cette équipe
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -224,11 +224,11 @@ const AdminTeamEdit = () => {
                 onClick={() => navigate("/admin/teams")}
                 disabled={isSubmitting}
               >
-                Cancel
+                Annuler
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 <Save className="h-4 w-4 mr-2" />
-                {isSubmitting ? "Updating..." : "Update Team"}
+                {isSubmitting ? "Mise à jour..." : "Mettre à Jour Équipe"}
               </Button>
             </div>
           </form>

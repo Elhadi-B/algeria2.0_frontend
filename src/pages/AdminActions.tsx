@@ -37,27 +37,27 @@ export default function AdminActions() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Actions</h1>
+          <h1 className="text-3xl font-bold">Évaluations</h1>
           <p className="text-muted-foreground mt-1">
-            Recent activity and system actions
+            Activité récente des évaluations
           </p>
         </div>
         <Button onClick={loadRecentEvaluations}>
-          Refresh
+          Actualiser
         </Button>
       </div>
       {/* Recent Evaluations */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent Evaluations</CardTitle>
+          <CardTitle>Évaluations Récentes</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            Latest judge evaluations and feedback
+            Dernières évaluations et commentaires des jurys
           </p>
         </CardHeader>
         <CardContent>
           {loading && (
             <div className="text-center py-8 text-muted-foreground">
-              Loading evaluations...
+              Chargement des évaluations...
             </div>
           )}
 
@@ -70,7 +70,7 @@ export default function AdminActions() {
           {!loading && !error && recentEvaluations.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
               <MessageSquare className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>No evaluations submitted yet</p>
+              <p>Aucune évaluation soumise pour le moment</p>
             </div>
           )}
 
@@ -91,7 +91,7 @@ export default function AdminActions() {
                             </Badge>
                           </div>
                           <p className="text-sm text-muted-foreground">
-                            Evaluated by <span className="font-medium">{evaluation.judge_name}</span>
+                            Évalué par <span className="font-medium">{evaluation.judge_name}</span>
                           </p>
                         </div>
                         <div className="text-left sm:text-right text-xs text-muted-foreground whitespace-nowrap">
@@ -130,7 +130,7 @@ export default function AdminActions() {
                           <div className="flex items-start gap-2">
                             <MessageSquare className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium mb-1">General Feedback</p>
+                              <p className="text-sm font-medium mb-1">Commentaires Généraux</p>
                               <p className="text-sm text-muted-foreground break-words">
                                 {evaluation.general_comment}
                               </p>

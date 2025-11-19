@@ -27,12 +27,12 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   };
 
   const navItems = [
-    { path: "/admin/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    { path: "/admin/actions", icon: Zap, label: "Actions" },
-    { path: "/admin/teams", icon: Users, label: "Teams" },
-    { path: "/admin/judges", icon: FileText, label: "Judges" },
-    { path: "/admin/ranking", icon: Trophy, label: "Rankings" },
-    { path: "/admin/settings", icon: Settings, label: "Settings" },
+    { path: "/admin/dashboard", icon: LayoutDashboard, label: "Tableau de Bord" },
+    { path: "/admin/actions", icon: Zap, label: "Évaluations" },
+    { path: "/admin/teams", icon: Users, label: "Équipes" },
+    { path: "/admin/judges", icon: FileText, label: "Jurys" },
+    { path: "/admin/ranking", icon: Trophy, label: "Classements" },
+    { path: "/admin/settings", icon: Settings, label: "Paramètres" },
   ];
 
   return (
@@ -56,9 +56,8 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="p-6 border-b">
-            <h1 className="text-xl font-bold text-primary">Pitch Judge</h1>
-            <p className="text-sm text-muted-foreground mt-1">Admin Dashboard</p>
+          <div className="pt-4 border-b flex justify-center">
+            <img src="/logo/logo-algeria20.svg" alt="Algeria 2.0" className="h-28 w-28" />
           </div>
 
           {/* Navigation */}
@@ -93,7 +92,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
               onClick={handleLogout}
             >
               <LogOut className="h-5 w-5 mr-3" />
-              Logout
+              Déconnexion
             </Button>
           </div>
         </div>

@@ -60,8 +60,8 @@ const AdminJudgeNew = () => {
       }
 
       toast({
-        title: "Judge created",
-        description: `"${formData.name}" has been added successfully`,
+        title: "Jury créé",
+        description: `"${formData.name}" a été ajouté avec succès`,
       });
       
       // Don't navigate immediately if we have a token to show
@@ -69,9 +69,9 @@ const AdminJudgeNew = () => {
         navigate("/admin/judges");
       }
     } catch (error: any) {
-      const errorMessage = error?.error || error?.detail || error?.message || "Failed to create judge";
+      const errorMessage = error?.error || error?.detail || error?.message || "Échec de la création du jury";
       toast({
-        title: "Failed to create judge",
+        title: "Échec de la création du jury",
         description: errorMessage,
         variant: "destructive",
       });
@@ -84,8 +84,8 @@ const AdminJudgeNew = () => {
     if (createdToken) {
       navigator.clipboard.writeText(createdToken);
       toast({
-        title: "Token copied",
-        description: "Judge token copied to clipboard",
+        title: "Jeton copié",
+        description: "Jeton du jury copié dans le presse-papiers",
       });
     }
   };
@@ -95,8 +95,8 @@ const AdminJudgeNew = () => {
       const loginLink = `${window.location.origin}/judge/login?token=${createdToken}`;
       navigator.clipboard.writeText(loginLink);
       toast({
-        title: "Login link copied",
-        description: "Judge login link copied to clipboard",
+        title: "Lien de connexion copié",
+        description: "Lien de connexion du jury copié dans le presse-papiers",
       });
     }
   };
@@ -192,70 +192,70 @@ const AdminJudgeNew = () => {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">Create New Judge</h1>
+          <h1 className="text-3xl font-bold">Créer Nouveau Jury</h1>
           <p className="text-muted-foreground mt-1">
-            Add a new judge to the event
+            Ajouter un nouveau jury à l'événement
           </p>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Judge Information</CardTitle>
+          <CardTitle>Informations du Jury</CardTitle>
           <CardDescription>
-            Fill in the details for the new judge
+            Remplissez les détails du nouveau jury
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name *</Label>
+              <Label htmlFor="name">Nom Complet *</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => handleInputChange("name", e.target.value)}
-                placeholder="Enter judge's full name"
+                placeholder="Entrez le nom complet du jury"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address *</Label>
+              <Label htmlFor="email">Adresse Email *</Label>
               <Input
                 id="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
-                placeholder="judge@example.com"
+                placeholder="jury@example.com"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="organization">Organization *</Label>
+              <Label htmlFor="organization">Organisation *</Label>
               <Input
                 id="organization"
                 value={formData.organization}
                 onChange={(e) => handleInputChange("organization", e.target.value)}
-                placeholder="Company or institution name"
+                placeholder="Nom de l'entreprise ou de l'institution"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number *</Label>
+              <Label htmlFor="phone">Numéro de Téléphone *</Label>
               <Input
                 id="phone"
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => handleInputChange("phone", e.target.value)}
-                placeholder="+1 (555) 123-4567"
+                placeholder="+213 555 123 456"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="image">Profile Image</Label>
+              <Label htmlFor="image">Image de Profil</Label>
               <div className="space-y-4">
                 <Input
                   id="image"
@@ -268,19 +268,19 @@ const AdminJudgeNew = () => {
                   <div className="mt-4">
                     <img
                       src={imagePreview}
-                      alt="Preview"
+                      alt="Aperçu"
                       className="w-32 h-32 object-cover rounded-lg border"
                     />
                   </div>
                 )}
               </div>
               <p className="text-xs text-muted-foreground">
-                Upload a profile image for the judge (optional)
+                Téléchargez une image de profil pour le jury (optionnel)
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="image_path">Image Path (Alternative)</Label>
+              <Label htmlFor="image_path">Chemin d'Image (Alternatif)</Label>
               <Input
                 id="image_path"
                 value={formData.image_path}
@@ -288,7 +288,7 @@ const AdminJudgeNew = () => {
                 placeholder="/uploads/judges/image.jpg"
               />
               <p className="text-xs text-muted-foreground">
-                Or specify an image path instead of uploading (optional)
+                Ou spécifiez un chemin d'image au lieu de télécharger (optionnel)
               </p>
             </div>
 
@@ -299,11 +299,11 @@ const AdminJudgeNew = () => {
                 onClick={() => navigate("/admin/judges")}
                 disabled={isSubmitting}
               >
-                Cancel
+                Annuler
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 <Save className="h-4 w-4 mr-2" />
-                {isSubmitting ? "Creating..." : "Create Judge"}
+                {isSubmitting ? "Création..." : "Créer Jury"}
               </Button>
             </div>
           </form>

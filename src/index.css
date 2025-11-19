@@ -17,9 +17,10 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 47.4% 11.2%;
 
-    --primary: 217.2 91.2% 59.8%;
+    /* Blue #0298c6 - Primary brand color */
+    --primary: 194 98% 39%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 217.2 91.2% 54%;
+    --primary-hover: 194 98% 34%;
 
     --secondary: 214.3 31.8% 91.4%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -30,10 +31,12 @@ All colors MUST be HSL.
     --accent: 220 14.3% 95.9%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
-    --success: 142.1 76.2% 36.3%;
+    /* Green #81b841 - Success color */
+    --success: 85 50% 49%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 37.7 92.1% 50.2%;
+    /* Orange #f19220 - Warning color */
+    --warning: 32 87% 53%;
     --warning-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
@@ -41,11 +44,11 @@ All colors MUST be HSL.
 
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 217.2 91.2% 59.8%;
+    --ring: 194 98% 39%;
 
     --radius: 0.5rem;
     
-    --gradient-primary: linear-gradient(135deg, hsl(217.2 91.2% 59.8%) 0%, hsl(217.2 91.2% 70%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(194 98% 39%) 0%, hsl(194 98% 50%) 100%);
     --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(220 14.3% 98%) 100%);
     
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -58,9 +61,9 @@ All colors MUST be HSL.
 
     --sidebar-foreground: 240 5.3% 26.1%;
 
-    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary: 194 98% 39%;
 
-    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-primary-foreground: 0 0% 100%;
 
     --sidebar-accent: 240 4.8% 95.9%;
 
@@ -68,7 +71,7 @@ All colors MUST be HSL.
 
     --sidebar-border: 220 13% 91%;
 
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 194 98% 39%;
   }
 
   .dark {
@@ -81,9 +84,10 @@ All colors MUST be HSL.
     --popover: 222.2 47.4% 11.2%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 217.2 91.2% 59.8%;
+    /* Blue #0298c6 - Primary brand color */
+    --primary: 194 98% 39%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 217.2 91.2% 54%;
+    --primary-hover: 194 98% 34%;
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -94,10 +98,12 @@ All colors MUST be HSL.
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
 
-    --success: 142.1 70.6% 45.3%;
+    /* Green #81b841 - Success color */
+    --success: 85 50% 49%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 37.7 92.1% 50.2%;
+    /* Orange #f19220 - Warning color */
+    --warning: 32 87% 53%;
     --warning-foreground: 0 0% 100%;
 
     --destructive: 0 62.8% 30.6%;
@@ -105,15 +111,15 @@ All colors MUST be HSL.
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 217.2 91.2% 59.8%;
+    --ring: 194 98% 39%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary: 194 98% 39%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 194 98% 39%;
   }
 }
 

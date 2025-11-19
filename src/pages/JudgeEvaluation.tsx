@@ -49,8 +49,8 @@ const JudgeEvaluation = () => {
     } catch (error) {
       console.error("Failed to load criteria:", error);
       toast({
-        title: "Failed to load criteria",
-        description: "Please refresh the page",
+        title: "Échec du chargement des critères",
+        description: "Veuillez actualiser la page",
         variant: "destructive",
       });
     }
@@ -82,8 +82,8 @@ const JudgeEvaluation = () => {
       }
     } catch (error: any) {
       toast({
-        title: "Failed to load team",
-        description: error?.error || error?.detail || "Please try again",
+        title: "Échec du chargement de l'équipe",
+        description: error?.error || error?.detail || "Veuillez réessayer",
         variant: "destructive",
       });
       navigate("/judge/teams");
@@ -120,15 +120,15 @@ const JudgeEvaluation = () => {
       });
       
       toast({
-        title: "Evaluation submitted",
-        description: "Your scores have been saved successfully",
+        title: "Évaluation soumise",
+        description: "Vos scores ont été enregistrés avec succès",
       });
       
       navigate("/judge/teams");
     } catch (error: any) {
-      const errorMessage = error?.error || error?.detail || "Please try again";
+      const errorMessage = error?.error || error?.detail || "Veuillez réessayer";
       toast({
-        title: "Submission failed",
+        title: "Échec de la soumission",
         description: errorMessage,
         variant: "destructive",
       });
@@ -141,23 +141,29 @@ const JudgeEvaluation = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-background">
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
-          <Button variant="ghost" onClick={() => navigate("/judge/teams")}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Teams
-          </Button>
+          <div className="flex items-center justify-between">
+            <Button variant="ghost" onClick={() => navigate("/judge/teams")}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Retour aux Équipes
+            </Button>
+            <div className="flex items-center gap-2">
+              <img src="/logo/logo-algeria20.svg" alt="Algeria 2.0" className="h-14 w-14" />
+              <span className="text-sm font-medium">Évaluation Hackathon</span>
+            </div>
+          </div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         {isLoading ? (
           <Card className="p-12 text-center">
-            <p className="text-muted-foreground">Loading team details...</p>
+            <p className="text-muted-foreground">Chargement des détails de l'équipe...</p>
           </Card>
         ) : !team ? (
           <Card className="p-12 text-center">
-            <p className="text-muted-foreground">Team not found</p>
+            <p className="text-muted-foreground">Équipe introuvable</p>
             <Button className="mt-4" onClick={() => navigate("/judge/teams")}>
-              Back to Teams
+              Retour aux Équipes
             </Button>
           </Card>
         ) : (
@@ -178,7 +184,7 @@ const JudgeEvaluation = () => {
           {/* Scoring Form */}
           <Card>
             <CardHeader>
-              <CardTitle>Evaluation Criteria</CardTitle>
+              <CardTitle>Critères d'Évaluation</CardTitle>
             </CardHeader>
             <CardContent className="space-y-8">
               {criteria.map((criterion) => (
@@ -189,7 +195,7 @@ const JudgeEvaluation = () => {
                         {criterion.name}
                       </Label>
                       <p className="text-sm text-muted-foreground">
-                        Weight: {Math.round(criterion.weight * 100)}%
+                        Poids : {Math.round(criterion.weight * 100)}%
                       </p>
                     </div>
                   </div>
@@ -203,16 +209,16 @@ const JudgeEvaluation = () => {
 
               <div className="pt-4 border-t">
                 <div className="flex justify-between items-center mb-4">
-                  <Label className="text-lg font-semibold">Total Weighted Score</Label>
+                  <Label className="text-lg font-semibold">Score Total Pondéré</Label>
                   <div className="text-3xl font-bold text-primary">
                     {calculateTotalScore().toFixed(2)}
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>General Comments</Label>
+                  <Label>Commentaires Généraux</Label>
                   <Textarea
-                    placeholder="Overall feedback for the team..."
+                    placeholder="Commentaire global pour l'équipe..."
                     value={generalComment}
                     onChange={(e) => setGeneralComment(e.target.value)}
                     rows={4}
@@ -227,7 +233,7 @@ const JudgeEvaluation = () => {
                 size="lg"
               >
                 <Save className="h-4 w-4 mr-2" />
-                {isSubmitting ? "Submitting..." : "Submit Evaluation"}
+                {isSubmitting ? "Soumission..." : "Soumettre Évaluation"}
               </Button>
             </CardContent>
           </Card>
