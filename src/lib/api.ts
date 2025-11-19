@@ -24,8 +24,12 @@ import type {
   ApiError,
 } from "./types";
 
-//const API_BASE_URL = "http://localhost:9090/api";
-const API_BASE_URL = "https://jury.algeria20.com/api";
+const runtimeOrigin =
+  typeof window !== "undefined" ? window.location.origin : undefined;
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL?.trim() ||
+  (runtimeOrigin ? `${runtimeOrigin}/api` : "http://localhost:8000/api");
 
 // Helper function to get CSRF token from cookies
 const getCsrfToken = (): string | null => {

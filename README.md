@@ -29,12 +29,19 @@ git clone <YOUR_GIT_URL>
 # Step 2: Navigate to the project directory.
 cd <YOUR_PROJECT_NAME>
 
+# Step 2.5: Configure the backend API URL
+cp .env.example .env
+# For production on the same domain, use /api so requests piggyback the site origin
+echo "VITE_API_URL=/api" >> .env
+
 # Step 3: Install the necessary dependencies.
 npm i
 
 # Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
+
+> **Tip:** For local backend testing, set `VITE_API_URL=http://localhost:8000/api` inside `.env` before running `npm run dev`.
 
 **Edit a file directly in GitHub**
 
