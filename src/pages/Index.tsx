@@ -15,7 +15,7 @@ const Index = () => {
             <img src="/logo/logo-algeria20.svg" alt="Algeria 2.0" className="h-24 w-24" />
           </div>
           <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary to-success bg-clip-text text-transparent">
-             d'Évaluation Hackathon
+            Plateforme d'Évaluation Hackathon
           </h1>
           <p className="text-xl text-muted-foreground">
             Une plateforme moderne en temps réel pour gérer et évaluer les projets de hackathon lors de vos événements
