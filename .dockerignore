@@ -1,0 +1,22 @@
+# Dependencies and build artifacts
+node_modules
+bun.lockb
+*.log
+dist
+.tmp
+.cache
+
+# Local environment files
+.env
+.env.*
+
+# Version control and editor cruft
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+
+# Testing and coverage outputs
+coverage
+reports
