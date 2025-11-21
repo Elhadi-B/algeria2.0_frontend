@@ -136,22 +136,23 @@ const AdminTeams = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Équipes</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold">Équipes</h1>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Gérer les équipes participantes
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Button
             variant="outline"
             onClick={() => navigate("/admin/teams/import")}
+            className="w-full sm:w-auto"
           >
             <Upload className="h-4 w-4 mr-2" />
             Importer CSV
           </Button>
-          <Button onClick={() => navigate("/admin/teams/new")}>
+          <Button onClick={() => navigate("/admin/teams/new")} className="w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Ajouter Équipe
           </Button>
@@ -263,10 +264,13 @@ const AdminTeams = () => {
           </div>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{filteredTeams.map((team) => (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{filteredTeams.map((team) => (
             <Card key={team.id} className="hover:shadow-lg transition-shadow">
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">{team.project_name}</CardTitle>
+                <div className="flex flex-col gap-1">
+                  <CardTitle className="text-lg break-words">{team.project_name}</CardTitle>
+                  <div className="text-xs text-muted-foreground">ID: #{team.id}</div>
+                </div>
                 {team.project_domain && (
                   <div className="text-sm text-muted-foreground mt-1">{team.project_domain}</div>
                 )}

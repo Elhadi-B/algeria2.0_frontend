@@ -115,18 +115,18 @@ const AdminRanking = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Classements</h1>
-          <p className="text-muted-foreground mt-1">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl sm:text-3xl font-bold">Classements</h1>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Classements et scores des équipes en temps réel
           </p>
         </div>
-        <div className="flex gap-2 items-center">
-          <Badge variant={isConnected ? "default" : "secondary"}>
+        <div className="flex flex-wrap gap-2 items-center w-full sm:w-auto">
+          <Badge variant={isConnected ? "default" : "secondary"} className="shrink-0">
             {isConnected ? "● En Direct" : "○ Déconnecté"}
           </Badge>
-          <Button variant="outline" onClick={exportCSV}>
+          <Button variant="outline" onClick={exportCSV} className="w-full sm:w-auto shrink-0">
             <Download className="h-4 w-4 mr-2" />
             Exporter CSV
           </Button>
@@ -137,7 +137,7 @@ const AdminRanking = () => {
         <CardHeader>
           <CardTitle>Classements Généraux</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           <Table>
               <TableHeader>
                 <TableRow>

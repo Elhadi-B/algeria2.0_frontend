@@ -29,6 +29,12 @@ const runtimeOrigin =
 
 const deriveBaseUrl = () => {
   const envUrl = import.meta.env.VITE_API_URL?.trim();
+  
+  // In development mode, always use the Django backend on port 8000
+  if (import.meta.env.DEV && (!envUrl || envUrl.length === 0)) {
+    return "http://localhost:8000/api";
+  }
+  
   const fallback = runtimeOrigin
     ? `${runtimeOrigin}/api`
     : "http://localhost:8000/api";

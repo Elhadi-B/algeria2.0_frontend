@@ -41,7 +41,6 @@ const AdminSettings = () => {
   const [editingCriterion, setEditingCriterion] = useState<Criterion | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<Criterion | null>(null);
   const [formData, setFormData] = useState<CreateCriterionRequest>({
-    key: "",
     name: "",
     description: "",
     weight: 1.0,
@@ -75,7 +74,6 @@ const AdminSettings = () => {
     if (criterion) {
       setEditingCriterion(criterion);
       setFormData({
-        key: criterion.key,
         name: criterion.name,
         description: criterion.description,
         weight: criterion.weight,
@@ -84,7 +82,6 @@ const AdminSettings = () => {
     } else {
       setEditingCriterion(null);
       setFormData({
-        key: "",
         name: "",
         description: "",
         weight: 1.0,
@@ -98,7 +95,6 @@ const AdminSettings = () => {
     setIsDialogOpen(false);
     setEditingCriterion(null);
     setFormData({
-      key: "",
       name: "",
       description: "",
       weight: 1.0,
@@ -111,6 +107,37 @@ const AdminSettings = () => {
     setIsSubmitting(true);
 
     try {
+      // Validate weight sum
+      const otherCriteria = criteria.filter(c => editingCriterion ? c.id !== editingCriterion.id : true);
+      const currentTotalWeight = otherCriteria.reduce((sum, c) => sum + (Number(c.weight) || 0), 0);
+      const newTotalWeight = currentTotalWeight + (Number(formData.weight) || 0);
+      
+      if (newTotalWeight > 1) {
+        toast({
+          title: "Erreur de validation",
+          description: `La somme des poids ne peut pas dépasser 1.0. Poids total actuel avec ce critère: ${newTotalWeight.toFixed(2)}`,
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Validate order uniqueness
+      const orderExists = criteria.some(c => {
+        if (editingCriterion && c.id === editingCriterion.id) return false;
+        return c.order === formData.order;
+      });
+      
+      if (orderExists) {
+        toast({
+          title: "Erreur de validation",
+          description: `Un critère avec l'ordre ${formData.order} existe déjà. Veuillez choisir un autre ordre.`,
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       if (editingCriterion) {
         // Update existing criterion
         await adminUpdateCriterion(editingCriterion.id, formData);
@@ -184,14 +211,14 @@ const AdminSettings = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Paramètres de l'Événement</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold">Paramètres de l'Événement</h1>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Gérer les critères d'évaluation et les pondérations de notation
           </p>
         </div>
-        <Button onClick={() => handleOpenDialog()}>
+        <Button onClick={() => handleOpenDialog()} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Ajouter Critère
         </Button>
@@ -206,13 +233,13 @@ const AdminSettings = () => {
                 Configurer les critères que les jurys utiliseront pour évaluer les équipes
               </CardDescription>
             </div>
-            <div className="text-sm">
+            <div className="text-sm mt-2 sm:mt-0">
               <span className="font-medium">Poids Total : </span>
               <span className={totalWeight === 1 ? "text-green-600" : "text-yellow-600"}>
                 {totalWeight.toFixed(2)}
               </span>
               {totalWeight !== 1 && (
-                <span className="text-xs text-muted-foreground ml-2">
+                <span className="text-xs text-muted-foreground ml-2 block sm:inline">
                   (Devrait égaler 1.0)
                 </span>
               )}
@@ -241,24 +268,22 @@ const AdminSettings = () => {
               {criteria.map((criterion) => (
                 <Card key={criterion.id} className="border-2">
                   <CardContent className="pt-6">
-                    <div className="flex items-start gap-4">
-                      <div className="flex items-center">
+                    <div className="flex items-start gap-2 sm:gap-4">
+                      <div className="flex items-center shrink-0">
                         <GripVertical className="h-5 w-5 text-muted-foreground cursor-move" />
                       </div>
                       
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="font-semibold text-lg">{criterion.name}</h3>
-                            <p className="text-xs text-muted-foreground">
-                              Clé : <code className="bg-muted px-1 rounded">{criterion.key}</code>
-                            </p>
+                      <div className="flex-1 space-y-2 min-w-0">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <h3 className="font-semibold text-base sm:text-lg break-words">{criterion.name}</h3>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 shrink-0">
                             <Button
                               variant="ghost"
                               size="icon"
                               onClick={() => handleOpenDialog(criterion)}
+                              className="h-8 w-8"
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -266,19 +291,20 @@ const AdminSettings = () => {
                               variant="ghost"
                               size="icon"
                               onClick={() => setDeleteConfirm(criterion)}
+                              className="h-8 w-8"
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                           </div>
                         </div>
                         
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground break-words">
                           {criterion.description}
                         </p>
                         
-                        <div className="flex items-center gap-4">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                           <div className="flex items-center gap-2">
-                            <Label htmlFor={`weight-${criterion.id}`} className="text-xs">
+                            <Label htmlFor={`weight-${criterion.id}`} className="text-xs whitespace-nowrap">
                               Weight:
                             </Label>
                             <Input
@@ -296,12 +322,12 @@ const AdminSettings = () => {
                               }
                               className="w-20 h-8 text-sm"
                             />
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-xs text-muted-foreground whitespace-nowrap">
                               ({(criterion.weight * 100).toFixed(0)}%)
                             </span>
                           </div>
                           
-                          <div className="text-xs text-muted-foreground">
+                          <div className="text-xs text-muted-foreground whitespace-nowrap">
                             Order: {criterion.order}
                           </div>
                         </div>
@@ -317,7 +343,7 @@ const AdminSettings = () => {
 
       {/* Create/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingCriterion ? "Modifier Critère" : "Créer Nouveau Critère"}
@@ -330,21 +356,6 @@ const AdminSettings = () => {
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="key">Clé du Critère *</Label>
-              <Input
-                id="key"
-                value={formData.key}
-                onChange={(e) => setFormData({ ...formData, key: e.target.value })}
-                placeholder="ex : innovation, impact, faisabilité"
-                required
-                disabled={isSubmitting}
-              />
-              <p className="text-xs text-muted-foreground">
-                Identifiant unique (minuscules, pas d'espaces)
-              </p>
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="name">Nom du Critère *</Label>
               <Input
@@ -370,7 +381,7 @@ const AdminSettings = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="weight">Poids *</Label>
                 <Input

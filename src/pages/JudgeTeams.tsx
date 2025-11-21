@@ -32,7 +32,7 @@ const JudgeTeams = () => {
     return (localStorage.getItem("judgeTeamsViewMode") as "all" | "pending" | "evaluated") || "all";
   });
   const [displayMode, setDisplayMode] = useState<"grid" | "table">(() => {
-    return (localStorage.getItem("judgeTeamsDisplayMode") as "grid" | "table") || "table";
+    return (localStorage.getItem("judgeTeamsDisplayMode") as "grid" | "table") || "grid";
   });
 
   // Persist viewMode changes
@@ -163,14 +163,14 @@ const JudgeTeams = () => {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <div className="relative max-w-md flex-1">
+          <div className="flex flex-col gap-4">
+            <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Rechercher des équipes ou entrer l'ID de l'équipe..."
+                placeholder="Rechercher des équipes ou entrer l'ID..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-10 w-full"
               />
             </div>
 
@@ -292,10 +292,13 @@ const JudgeTeams = () => {
                   onClick={() => navigate(`/judge/teams/${team.id}`)}
                 >
                   <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-xl">{team.project_name}</CardTitle>
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-xl break-words">{team.project_name}</CardTitle>
+                        <div className="text-xs text-muted-foreground mt-1">ID: #{team.id}</div>
+                      </div>
                       {team.hasEvaluation && (
-                        <Badge className="bg-success text-success-foreground text-base">
+                        <Badge className="bg-success text-success-foreground text-base shrink-0">
                           {team.evaluationScore?.toFixed(2)}
                         </Badge>
                       )}

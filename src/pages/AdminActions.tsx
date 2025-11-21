@@ -3,18 +3,29 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { adminListEvaluations } from "@/lib/api";
-import { Evaluation } from "@/lib/types";
+import { adminListEvaluations, adminListCriteria } from "@/lib/api";
+import { Evaluation, Criterion } from "@/lib/types";
 import { MessageSquare } from "lucide-react";
 
 export default function AdminActions() {
   const [recentEvaluations, setRecentEvaluations] = useState<Evaluation[]>([]);
+  const [criteria, setCriteria] = useState<Criterion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    loadCriteria();
     loadRecentEvaluations();
   }, []);
+
+  const loadCriteria = async () => {
+    try {
+      const data = await adminListCriteria();
+      setCriteria(data.sort((a, b) => a.order - b.order));
+    } catch (err) {
+      console.error("Failed to load criteria:", err);
+    }
+  };
 
   const loadRecentEvaluations = async () => {
     try {
@@ -31,6 +42,38 @@ export default function AdminActions() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper function to get criterion name from key
+  const getCriterionName = (key: string): string => {
+    // Try to match by key (exact match)
+    const criterionByKey = criteria.find(c => c.key.toLowerCase() === key.toLowerCase());
+    if (criterionByKey) {
+      return criterionByKey.name;
+    }
+    
+    // Try to match by normalized key (remove special chars, lowercase)
+    const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const criterionByNormalized = criteria.find(c => {
+      const normalizedCriterionKey = c.key.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return normalizedCriterionKey === normalizedKey || 
+             normalizedKey.includes(normalizedCriterionKey) ||
+             normalizedCriterionKey.includes(normalizedKey);
+    });
+    if (criterionByNormalized) {
+      return criterionByNormalized.name;
+    }
+    
+    // Try to match by name (in case key is actually a name)
+    const criterionByName = criteria.find(c => 
+      c.name.toLowerCase().replace(/[^a-z0-9]/g, '') === normalizedKey
+    );
+    if (criterionByName) {
+      return criterionByName.name;
+    }
+    
+    // Fallback: return formatted key
+    return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
   return (
@@ -107,21 +150,24 @@ export default function AdminActions() {
 
                       {/* Criteria Scores */}
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                        {Object.entries(evaluation.scores).map(([key, score]) => (
-                          <div
-                            key={key}
-                            className="p-3 rounded-lg border bg-muted/30"
-                          >
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="text-sm font-medium capitalize truncate">
-                                {key.replace(/_/g, ' ')}
-                              </span>
-                              <Badge className="shrink-0">
-                                {Number(score.score).toFixed(1)}/5
-                              </Badge>
+                        {Object.entries(evaluation.scores).map(([key, score]) => {
+                          const criterionName = getCriterionName(key);
+                          return (
+                            <div
+                              key={key}
+                              className="p-3 rounded-lg border bg-muted/30"
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-sm font-medium break-words min-w-0 flex-1" title={criterionName}>
+                                  {criterionName}
+                                </span>
+                                <Badge className="shrink-0 ml-2">
+                                  {Number(score.score).toFixed(1)}/5
+                                </Badge>
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
 
                       {/* General Comments */}

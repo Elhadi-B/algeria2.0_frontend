@@ -19,27 +19,12 @@ const AdminJudgeNew = () => {
     email: "",
     organization: "",
     phone: "",
-    image_path: "",
   });
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const handleInputChange = (field: keyof CreateJudgeRequest, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      // Create preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,8 +33,6 @@ const AdminJudgeNew = () => {
     try {
       const submitData: CreateJudgeRequest = {
         ...formData,
-        image: imageFile || undefined,
-        image_path: formData.image_path || undefined,
       };
 
       const response = await adminCreateJudge(submitData);
@@ -183,7 +166,7 @@ const AdminJudgeNew = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
         <Button
           variant="ghost"
           size="icon"
@@ -191,9 +174,9 @@ const AdminJudgeNew = () => {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <div>
-          <h1 className="text-3xl font-bold">Créer Nouveau Jury</h1>
-          <p className="text-muted-foreground mt-1">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold truncate">Créer Nouveau Jury</h1>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Ajouter un nouveau jury à l'événement
           </p>
         </div>
@@ -252,44 +235,6 @@ const AdminJudgeNew = () => {
                 placeholder="+213 555 123 456"
                 required
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="image">Image de Profil</Label>
-              <div className="space-y-4">
-                <Input
-                  id="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="cursor-pointer"
-                />
-                {imagePreview && (
-                  <div className="mt-4">
-                    <img
-                      src={imagePreview}
-                      alt="Aperçu"
-                      className="w-32 h-32 object-cover rounded-lg border"
-                    />
-                  </div>
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Téléchargez une image de profil pour le jury (optionnel)
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="image_path">Chemin d'Image (Alternatif)</Label>
-              <Input
-                id="image_path"
-                value={formData.image_path}
-                onChange={(e) => handleInputChange("image_path", e.target.value)}
-                placeholder="/uploads/judges/image.jpg"
-              />
-              <p className="text-xs text-muted-foreground">
-                Ou spécifiez un chemin d'image au lieu de télécharger (optionnel)
-              </p>
             </div>
 
             <div className="flex gap-4 pt-4">

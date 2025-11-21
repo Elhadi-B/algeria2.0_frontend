@@ -171,13 +171,13 @@ const JudgeEvaluation = () => {
             {/* Team Details */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-3xl">{team.project_name}</CardTitle>
+                <CardTitle className="text-xl sm:text-2xl md:text-3xl break-words">{team.project_name}</CardTitle>
                 {team.project_domain && (
-                  <div className="text-muted-foreground mt-2">{team.project_domain}</div>
+                  <div className="text-muted-foreground mt-2 text-sm sm:text-base">{team.project_domain}</div>
                 )}
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-muted-foreground">{team.short_description}</p>
+                <p className="text-muted-foreground text-sm sm:text-base break-words">{team.short_description}</p>
               </CardContent>
             </Card>
 

@@ -66,7 +66,6 @@ export interface Criterion {
 }
 
 export interface CreateCriterionRequest {
-  key: string;
   name: string;
   description: string;
   weight: number;
@@ -74,7 +73,6 @@ export interface CreateCriterionRequest {
 }
 
 export interface UpdateCriterionRequest {
-  key?: string;
   name?: string;
   description?: string;
   weight?: number;
