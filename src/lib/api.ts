@@ -688,7 +688,7 @@ export function createRankingWebSocket(
   onError?: (error: Event) => void,
   onClose?: () => void
 ): WebSocket {
-  const ws = new WebSocket("ws://localhost:8000/ws/ranking/");
+  const ws = new WebSocket("wss://jury.algeria20.com/ws/ranking/");
 
   ws.onopen = () => {
     // Request initial ranking
