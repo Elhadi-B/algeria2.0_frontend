@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, FileText, CheckCircle, TrendingUp, Loader2 } from "lucide-react";
 import { adminListTeams, adminListJudges, adminGetRanking } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 
 interface DashboardStats {
   totalTeams: number;
@@ -141,34 +142,34 @@ const AdminDashboard = () => {
               <CardTitle>Actions Rapides</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-                <a
-                  href="/admin/actions"
+                <Link
+                  to="/admin/actions"
                   className="block p-3 rounded-lg border hover:bg-accent transition-colors"
                 >
                   <h3 className="font-medium">Voir les Évaluations Récentes</h3>
                   <p className="text-sm text-muted-foreground">Consultez les dernières soumissions et commentaires des jurys</p>
-                </a>
-                <a
-                  href="/admin/teams/import"
+                </Link>
+                <Link
+                  to="/admin/teams/import"
                   className="block p-3 rounded-lg border hover:bg-accent transition-colors"
                 >
                   <h3 className="font-medium">Importer des Équipes</h3>
                   <p className="text-sm text-muted-foreground">Télécharger un CSV pour ajouter plusieurs équipes</p>
-                </a>
-                <a
-                  href="/admin/judges"
+                </Link>
+                <Link
+                  to="/admin/judges"
                   className="block p-3 rounded-lg border hover:bg-accent transition-colors"
                 >
                   <h3 className="font-medium">Gérer les Jurys</h3>
                   <p className="text-sm text-muted-foreground">Créer et gérer les comptes jurys</p>
-                </a>
-                <a
-                  href="/admin/ranking"
+                </Link>
+                <Link
+                  to="/admin/ranking"
                   className="block p-3 rounded-lg border hover:bg-accent transition-colors"
                 >
                   <h3 className="font-medium">Voir les Classements</h3>
                   <p className="text-sm text-muted-foreground">Consultez les classements et scores des équipes en direct</p>
-                </a>
+                </Link>
               </CardContent>
             </Card>
         </>

@@ -32,16 +32,25 @@ const AdminTeams = () => {
     localStorage.setItem("adminTeamsDisplayMode", displayMode);
   }, [displayMode]);
 
+  const isPaginatedResponse = (value: unknown): value is { results: Team[] } => {
+    return (
+      typeof value === "object" &&
+      value !== null &&
+      "results" in value &&
+      Array.isArray((value as { results?: unknown }).results)
+    );
+  };
+
   const loadTeams = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await adminListTeams();
+      const data: unknown = await adminListTeams();
       // The API handler should already extract results from paginated responses
       // But add safety check just in case
       if (Array.isArray(data)) {
         setTeams(data);
-      } else if (data && typeof data === 'object' && 'results' in data && Array.isArray(data.results)) {
+      } else if (isPaginatedResponse(data)) {
         // Fallback: handle paginated response if API handler didn't
         setTeams(data.results);
       } else {
@@ -159,19 +168,19 @@ const AdminTeams = () => {
         </div>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative w-full">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Rechercher des équipes ou entrer l'ID de l'équipe..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-10 w-full"
           />
         </div>
 
         {/* Display Mode Toggle */}
-        <div className="flex gap-1 border rounded-lg p-1">
+        <div className="flex gap-1 border rounded-lg p-1 self-start sm:self-auto">
           <Button
             size="sm"
             className={displayMode === "grid" ? "" : "bg-transparent text-muted-foreground hover:text-foreground"}
@@ -276,19 +285,19 @@ const AdminTeams = () => {
                 )}
               </CardHeader>
               <CardContent className="space-y-3">
-                <div>
+                <div className="space-y-1">
                   {team.team_leader_email && (
-                    <div className="text-xs text-muted-foreground mb-1">Email: {team.team_leader_email}</div>
+                    <div className="text-xs text-muted-foreground break-words">Email: {team.team_leader_email}</div>
                   )}
                   {team.team_leader_phone && (
-                    <div className="text-xs text-muted-foreground mb-1">Tél: {team.team_leader_phone}</div>
+                    <div className="text-xs text-muted-foreground break-words">Tél: {team.team_leader_phone}</div>
                   )}
                 </div>
                 <div>
                   <p className="text-xs font-medium text-muted-foreground mb-1">Membres</p>
-                  <p className="text-sm">{team.members || "—"}</p>
+                  <p className="text-sm break-words">{team.members || "—"}</p>
                 </div>
-                <p className="text-sm text-muted-foreground line-clamp-3">
+                <p className="text-sm text-muted-foreground line-clamp-3 break-words">
                   {team.short_description}
                 </p>
                 <div className="flex gap-2 pt-2">

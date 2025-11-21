@@ -304,11 +304,11 @@ const JudgeTeams = () => {
                       )}
                     </div>
                     {team.project_domain && (
-                      <div className="text-sm text-muted-foreground mt-2">{team.project_domain}</div>
+                      <div className="text-sm text-muted-foreground mt-2 break-words">{team.project_domain}</div>
                     )}
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <p className="text-sm text-muted-foreground line-clamp-3">
+                    <p className="text-sm text-muted-foreground line-clamp-3 break-words">
                       {team.short_description}
                     </p>
                     <Button className="w-full mt-2" variant={team.hasEvaluation ? "outline" : "default"}>
