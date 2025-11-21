@@ -24,7 +24,7 @@ const AdminTeams = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [displayMode, setDisplayMode] = useState<"grid" | "table">(() => {
-    return (localStorage.getItem("adminTeamsDisplayMode") as "grid" | "table") || "table";
+    return (localStorage.getItem("adminTeamsDisplayMode") as "grid" | "table") || "grid";
   });
 
   // Persist displayMode changes
@@ -183,17 +183,17 @@ const AdminTeams = () => {
         <div className="flex gap-1 border rounded-lg p-1 self-start sm:self-auto">
           <Button
             size="sm"
-            className={displayMode === "grid" ? "" : "bg-transparent text-muted-foreground hover:text-foreground"}
-            onClick={() => setDisplayMode("grid")}
-          >
-            <Grid className="h-4 w-4" />
-          </Button>
-          <Button
-            size="sm"
             className={displayMode === "table" ? "" : "bg-transparent text-muted-foreground hover:text-foreground"}
             onClick={() => setDisplayMode("table")}
           >
             <List className="h-4 w-4" />
+          </Button>
+          <Button
+            size="sm"
+            className={displayMode === "grid" ? "" : "bg-transparent text-muted-foreground hover:text-foreground"}
+            onClick={() => setDisplayMode("grid")}
+          >
+            <Grid className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -273,27 +273,27 @@ const AdminTeams = () => {
           </div>
         </Card>
       ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{filteredTeams.map((team) => (
-            <Card key={team.id} className="hover:shadow-lg transition-shadow">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">{filteredTeams.map((team) => (
+            <Card key={team.id} className="hover:shadow-lg transition-shadow flex flex-col">
               <CardHeader className="pb-3">
                 <div className="flex flex-col gap-1">
-                  <CardTitle className="text-lg break-words">{team.project_name}</CardTitle>
+                  <CardTitle className="text-lg break-words hyphens-auto">{team.project_name}</CardTitle>
                   <div className="text-xs text-muted-foreground">ID: #{team.id}</div>
                 </div>
                 {team.project_domain && (
-                  <div className="text-sm text-muted-foreground mt-1">{team.project_domain}</div>
+                  <div className="text-sm text-muted-foreground mt-1 break-words">{team.project_domain}</div>
                 )}
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-3 flex-1 flex flex-col">
                 <div className="space-y-1">
                   {team.team_leader_email && (
-                    <div className="text-xs text-muted-foreground break-words">Email: {team.team_leader_email}</div>
+                    <div className="text-xs text-muted-foreground break-all">Email: {team.team_leader_email}</div>
                   )}
                   {team.team_leader_phone && (
-                    <div className="text-xs text-muted-foreground break-words">Tél: {team.team_leader_phone}</div>
+                    <div className="text-xs text-muted-foreground break-all">Tél: {team.team_leader_phone}</div>
                   )}
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="text-xs font-medium text-muted-foreground mb-1">Membres</p>
                   <p className="text-sm break-words">{team.members || "—"}</p>
                 </div>
@@ -304,16 +304,16 @@ const AdminTeams = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1"
+                    className="flex-1 min-w-0"
                     onClick={() => navigate(`/admin/teams/${team.id}/edit`)}
                   >
-                    <Edit className="h-3 w-3 mr-1" />
-                    Modifier
+                    <Edit className="h-3 w-3 mr-1 shrink-0" />
+                    <span className="truncate">Modifier</span>
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                    className="text-destructive hover:bg-destructive hover:text-destructive-foreground shrink-0"
                     onClick={() => handleDelete(team.id, team.project_name)}
                   >
                     <Trash2 className="h-3 w-3" />

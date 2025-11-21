@@ -140,13 +140,13 @@ const JudgeTeams = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-background">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <img src="/logo/logo-algeria20.svg" alt="Algeria 2.0" className="h-16 w-16" />
-              <h1 className="text-xl font-bold">Évaluation Hackathon</h1>
+        <div className="container mx-auto px-4 py-3 sm:py-4">
+          <div className="flex justify-between items-center gap-2">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <img src="/logo/logo-algeria20.svg" alt="Algeria 2.0" className="h-12 w-12 sm:h-16 sm:w-16 shrink-0" />
+              <h1 className="text-base sm:text-xl font-bold truncate">Évaluation Hackathon</h1>
             </div>
-            <Button variant="outline" onClick={handleLogout}>
+            <Button variant="outline" size="sm" onClick={handleLogout} className="shrink-0 text-xs sm:text-sm px-2 sm:px-4">
               Déconnexion
             </Button>
           </div>
@@ -174,47 +174,47 @@ const JudgeTeams = () => {
               />
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-2">
               {/* View Mode Filter */}
-              <div className="flex gap-1 border rounded-lg p-1">
+              <div className="flex gap-1 border rounded-lg p-1 w-full sm:w-auto">
                 <Button
                   size="sm"
-                  className={viewMode === "all" ? "" : "bg-transparent text-muted-foreground hover:text-foreground"}
+                  className={`flex-1 sm:flex-initial ${viewMode === "all" ? "" : "bg-transparent text-muted-foreground hover:text-foreground"}`}
                   onClick={() => setViewMode("all")}
                 >
-                  Toutes
+                  <span className="text-xs sm:text-sm">Toutes</span>
                 </Button>
                 <Button
                   size="sm"
-                  className={viewMode === "pending" ? "" : "bg-transparent text-muted-foreground hover:text-foreground"}
+                  className={`flex-1 sm:flex-initial ${viewMode === "pending" ? "" : "bg-transparent text-muted-foreground hover:text-foreground"}`}
                   onClick={() => setViewMode("pending")}
                 >
-                  En Attente
+                  <span className="text-xs sm:text-sm">En Attente</span>
                 </Button>
                 <Button
                   size="sm"
-                  className={viewMode === "evaluated" ? "" : "bg-transparent text-muted-foreground hover:text-foreground"}
+                  className={`flex-1 sm:flex-initial ${viewMode === "evaluated" ? "" : "bg-transparent text-muted-foreground hover:text-foreground"}`}
                   onClick={() => setViewMode("evaluated")}
                 >
-                  Évaluées
+                  <span className="text-xs sm:text-sm">Évaluées</span>
                 </Button>
               </div>
 
               {/* Display Mode Toggle */}
-              <div className="flex gap-1 border rounded-lg p-1">
+              <div className="flex gap-1 border rounded-lg p-1 w-full sm:w-auto">
                 <Button
                   size="sm"
-                  className={displayMode === "grid" ? "" : "bg-transparent text-muted-foreground hover:text-foreground"}
-                  onClick={() => setDisplayMode("grid")}
-                >
-                  <Grid className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  className={displayMode === "table" ? "" : "bg-transparent text-muted-foreground hover:text-foreground"}
+                  className={`flex-1 sm:flex-initial ${displayMode === "table" ? "" : "bg-transparent text-muted-foreground hover:text-foreground"}`}
                   onClick={() => setDisplayMode("table")}
                 >
                   <List className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  className={`flex-1 sm:flex-initial ${displayMode === "grid" ? "" : "bg-transparent text-muted-foreground hover:text-foreground"}`}
+                  onClick={() => setDisplayMode("grid")}
+                >
+                  <Grid className="h-4 w-4" />
                 </Button>
               </div>
             </div>
@@ -285,20 +285,20 @@ const JudgeTeams = () => {
               </div>
             </Card>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">{filteredTeams.map((team) => (
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">{filteredTeams.map((team) => (
                 <Card 
                   key={team.id} 
-                  className="hover:shadow-lg transition-all cursor-pointer group"
+                  className="hover:shadow-lg transition-all cursor-pointer group flex flex-col"
                   onClick={() => navigate(`/judge/teams/${team.id}`)}
                 >
                   <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
-                        <CardTitle className="text-xl break-words">{team.project_name}</CardTitle>
+                        <CardTitle className="text-lg sm:text-xl break-words hyphens-auto">{team.project_name}</CardTitle>
                         <div className="text-xs text-muted-foreground mt-1">ID: #{team.id}</div>
                       </div>
                       {team.hasEvaluation && (
-                        <Badge className="bg-success text-success-foreground text-base shrink-0">
+                        <Badge className="bg-success text-success-foreground text-sm sm:text-base shrink-0">
                           {team.evaluationScore?.toFixed(2)}
                         </Badge>
                       )}
@@ -307,12 +307,12 @@ const JudgeTeams = () => {
                       <div className="text-sm text-muted-foreground mt-2 break-words">{team.project_domain}</div>
                     )}
                   </CardHeader>
-                  <CardContent className="space-y-3">
-                    <p className="text-sm text-muted-foreground line-clamp-3 break-words">
+                  <CardContent className="space-y-3 flex-1 flex flex-col">
+                    <p className="text-sm text-muted-foreground line-clamp-3 break-words flex-1">
                       {team.short_description}
                     </p>
-                    <Button className="w-full mt-2" variant={team.hasEvaluation ? "outline" : "default"}>
-                      {team.hasEvaluation ? "Modifier Évaluation" : "Évaluer Maintenant"}
+                    <Button className="w-full mt-auto" variant={team.hasEvaluation ? "outline" : "default"}>
+                      <span className="truncate">{team.hasEvaluation ? "Modifier Évaluation" : "Évaluer Maintenant"}</span>
                     </Button>
                   </CardContent>
                 </Card>
