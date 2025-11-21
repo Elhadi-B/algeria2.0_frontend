@@ -127,7 +127,7 @@ export default function AdminActions() {
                         <div className="space-y-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-semibold text-lg">
-                              {evaluation.team.project_name}
+                              {evaluation.team.nom_equipe}
                             </span>
                             <Badge className="text-base">
                               {parseFloat(evaluation.total).toFixed(2)}

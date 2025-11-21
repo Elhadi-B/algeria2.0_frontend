@@ -1,13 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Save } from "lucide-react";
-import { adminCreateTeam } from "@/lib/api";
+import { adminCreateTeam, adminListTeams } from "@/lib/api";
 import type { CreateTeamRequest } from "@/lib/types";
 
 const AdminTeamNew = () => {
@@ -15,10 +14,22 @@ const AdminTeamNew = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<CreateTeamRequest>({
-    project_name: "",
-    short_description: "",
-    members: "",
+    num_equipe: "",
+    nom_equipe: "",
   });
+  const [existingNums, setExistingNums] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const fetchTeams = async () => {
+      try {
+        const teams = await adminListTeams();
+        setExistingNums(new Set(teams.map((team) => team.num_equipe.toLowerCase())));
+      } catch (error) {
+        console.error("Failed to load existing teams", error);
+      }
+    };
+    fetchTeams();
+  }, []);
 
   const handleInputChange = (field: keyof CreateTeamRequest, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -29,15 +40,40 @@ const AdminTeamNew = () => {
     setIsSubmitting(true);
 
     try {
+      const trimmedNum = formData.num_equipe.trim();
+      const trimmedName = formData.nom_equipe.trim();
+
+      if (!trimmedNum || !trimmedName) {
+        toast({
+          title: "Champs manquants",
+          description: "Veuillez renseigner le numéro et le nom de l'équipe.",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (existingNums.has(trimmedNum.toLowerCase())) {
+        toast({
+          title: "Numéro déjà utilisé",
+          description: `Le numéro d'équipe "${trimmedNum}" existe déjà.`,
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       const submitData: CreateTeamRequest = {
-        ...formData,
+        num_equipe: trimmedNum,
+        nom_equipe: trimmedName,
       };
 
       await adminCreateTeam(submitData);
+      setExistingNums((prev) => new Set(prev).add(trimmedNum.toLowerCase()));
       
       toast({
         title: "Équipe créée",
-        description: `"${formData.project_name}" a été ajoutée avec succès`,
+        description: `L'équipe "${trimmedName}" a été ajoutée avec succès`,
       });
       
       navigate("/admin/teams");
@@ -81,91 +117,25 @@ const AdminTeamNew = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="project_name">Nom du Projet *</Label>
+              <Label htmlFor="num_equipe">Numéro d'Équipe *</Label>
               <Input
-                id="project_name"
-                value={formData.project_name}
-                onChange={(e) => handleInputChange("project_name", e.target.value)}
-                placeholder="Entrez le nom du projet"
+                id="num_equipe"
+                value={formData.num_equipe}
+                onChange={(e) => handleInputChange("num_equipe", e.target.value)}
+                placeholder="Ex: EQ-01"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="short_description">Courte Description *</Label>
-              <Textarea
-                id="short_description"
-                value={formData.short_description}
-                onChange={(e) => handleInputChange("short_description", e.target.value)}
-                placeholder="Brève description du projet"
-                rows={4}
+              <Label htmlFor="nom_equipe">Nom de l'Équipe *</Label>
+              <Input
+                id="nom_equipe"
+                value={formData.nom_equipe}
+                onChange={(e) => handleInputChange("nom_equipe", e.target.value)}
+                placeholder="Entrez le nom de l'équipe"
                 required
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="team_leader_name">Nom du Chef d'Équipe</Label>
-              <Input
-                id="team_leader_name"
-                value={formData.team_leader_name || ""}
-                onChange={(e) => handleInputChange("team_leader_name", e.target.value)}
-                placeholder="Entrez le nom complet du chef d'équipe"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="team_leader_year">Année d'Études du Chef d'Équipe</Label>
-              <Input
-                id="team_leader_year"
-                value={formData.team_leader_year || ""}
-                onChange={(e) => handleInputChange("team_leader_year", e.target.value)}
-                placeholder="ex: 3ème année"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="team_leader_email">Email du Chef d'Équipe</Label>
-              <Input
-                id="team_leader_email"
-                type="email"
-                value={formData.team_leader_email || ""}
-                onChange={(e) => handleInputChange("team_leader_email", e.target.value)}
-                placeholder="Entrez l'email du chef d'équipe"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="team_leader_phone">Téléphone du Chef d'Équipe</Label>
-              <Input
-                id="team_leader_phone"
-                value={formData.team_leader_phone || ""}
-                onChange={(e) => handleInputChange("team_leader_phone", e.target.value)}
-                placeholder="Entrez le numéro de téléphone du chef d'équipe"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="project_domain">Domaine du Projet</Label>
-              <Input
-                id="project_domain"
-                value={formData.project_domain || ""}
-                onChange={(e) => handleInputChange("project_domain", e.target.value)}
-                placeholder="ex: Agriculture, Santé"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="members">Membres de l'Équipe *</Label>
-              <Input
-                id="members"
-                value={formData.members}
-                onChange={(e) => handleInputChange("members", e.target.value)}
-                placeholder="Entrez les noms séparés par des points-virgules (ex: Jean;Sarah;Michel)"
-                required
-              />
-              <p className="text-xs text-muted-foreground">
-                Séparez plusieurs membres avec des points-virgules (;)
-              </p>
             </div>
 
             <div className="flex gap-4 pt-4">

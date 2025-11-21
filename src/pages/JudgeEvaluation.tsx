@@ -114,7 +114,7 @@ const JudgeEvaluation = () => {
 
     try {
       await judgeSubmitScore({
-        team_id: parseInt(teamId),
+        team_id: teamId,
         scores: scores,
         general_comment: generalComment,
       });
@@ -171,14 +171,11 @@ const JudgeEvaluation = () => {
             {/* Team Details */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl sm:text-2xl md:text-3xl break-words">{team.project_name}</CardTitle>
-                {team.project_domain && (
-                  <div className="text-muted-foreground mt-2 text-sm sm:text-base">{team.project_domain}</div>
-                )}
+                <CardTitle className="text-xl sm:text-2xl md:text-3xl break-words">{team.nom_equipe}</CardTitle>
+                <div className="text-muted-foreground mt-2 text-sm sm:text-base">
+                  Numéro d'équipe : {team.num_equipe}
+                </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-muted-foreground text-sm sm:text-base break-words">{team.short_description}</p>
-              </CardContent>
             </Card>
 
           {/* Scoring Form */}

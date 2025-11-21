@@ -286,7 +286,7 @@ export async function adminListTeams(): Promise<Team[]> {
 /**
  * Admin: Get team details
  */
-export async function adminGetTeam(id: number): Promise<Team> {
+export async function adminGetTeam(id: string): Promise<Team> {
   const response = await fetchWithErrorHandling(
     `${API_BASE_URL}/admin/teams/${id}/`,
     createRequestOptions("GET")
@@ -299,24 +299,9 @@ export async function adminGetTeam(id: number): Promise<Team> {
  * Admin: Create team
  */
 export async function adminCreateTeam(data: CreateTeamRequest): Promise<Team> {
-  const formData = new FormData();
-  formData.append("project_name", data.project_name);
-  formData.append("short_description", data.short_description);
-  formData.append("members", data.members);
-  
-  // Add optional team leader fields
-  if (data.team_leader_name) formData.append("team_leader_name", data.team_leader_name);
-  if (data.team_leader_year) formData.append("team_leader_year", data.team_leader_year);
-  if (data.team_leader_email) formData.append("team_leader_email", data.team_leader_email);
-  if (data.team_leader_phone) formData.append("team_leader_phone", data.team_leader_phone);
-  if (data.project_domain) formData.append("project_domain", data.project_domain);
-  
-  if (data.extra_info) {
-    formData.append("extra_info", JSON.stringify(data.extra_info));
-  }
   const response = await fetchWithErrorHandling(
     `${API_BASE_URL}/admin/teams/`,
-    createRequestOptions("POST", formData, true)
+    createRequestOptions("POST", data)
   );
   return handleResponse<Team>(response);
 }
@@ -325,27 +310,12 @@ export async function adminCreateTeam(data: CreateTeamRequest): Promise<Team> {
  * Admin: Update team
  */
 export async function adminUpdateTeam(
-  id: number,
+  id: string | number,
   data: UpdateTeamRequest
 ): Promise<Team> {
-  const formData = new FormData();
-  if (data.project_name) formData.append("project_name", data.project_name);
-  if (data.short_description) formData.append("short_description", data.short_description);
-  if (data.members) formData.append("members", data.members);
-  
-  // Add optional team leader fields
-  if (data.team_leader_name !== undefined) formData.append("team_leader_name", data.team_leader_name);
-  if (data.team_leader_year !== undefined) formData.append("team_leader_year", data.team_leader_year);
-  if (data.team_leader_email !== undefined) formData.append("team_leader_email", data.team_leader_email);
-  if (data.team_leader_phone !== undefined) formData.append("team_leader_phone", data.team_leader_phone);
-  if (data.project_domain !== undefined) formData.append("project_domain", data.project_domain);
-  
-  if (data.extra_info) {
-    formData.append("extra_info", JSON.stringify(data.extra_info));
-  }
   const response = await fetchWithErrorHandling(
     `${API_BASE_URL}/admin/teams/${id}/`,
-    createRequestOptions("PATCH", formData, true)
+    createRequestOptions("PATCH", data)
   );
   return handleResponse<Team>(response);
 }
@@ -353,7 +323,7 @@ export async function adminUpdateTeam(
 /**
  * Admin: Delete team
  */
-export async function adminDeleteTeam(id: number): Promise<void> {
+export async function adminDeleteTeam(id: string | number): Promise<void> {
   const response = await fetch(
     `${API_BASE_URL}/admin/teams/${id}/`,
     createRequestOptions("DELETE")
@@ -648,7 +618,7 @@ export async function judgeListTeams(): Promise<TeamBasic[]> {
 /**
  * Judge: Get evaluation for a team
  */
-export async function judgeGetEvaluation(teamId: number): Promise<Evaluation | { message: string }> {
+export async function judgeGetEvaluation(teamId: string): Promise<Evaluation | { message: string }> {
   const token = getJudgeToken();
   const url = token
     ? `${API_BASE_URL}/judge/evaluation/${teamId}/?token=${encodeURIComponent(token)}`

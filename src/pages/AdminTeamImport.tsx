@@ -167,7 +167,7 @@ const AdminTeamImport = () => {
             </div>
             <div className="space-y-2">
               <p className="text-xs text-muted-foreground">
-                Le format CSV doit correspondre au formulaire de candidature avec les colonnes : Titre du Projet, Informations du Chef d'Équipe, Membres de l'Équipe, Domaine du Projet, Résumé du Projet, etc.
+                Le format CSV doit contenir uniquement deux colonnes: <strong>num_equipe</strong> (identifiant unique saisi par l'utilisateur) et <strong>nom_equipe</strong>.
               </p>
               <details className="text-xs">
                 <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
@@ -176,14 +176,8 @@ const AdminTeamImport = () => {
                 <div className="mt-2 p-3 bg-muted rounded-lg">
                   <p className="text-xs mb-2">Colonnes requises :</p>
                   <ul className="list-disc list-inside text-xs space-y-1">
-                    <li>Titre du Projet</li>
-                    <li>Chef d'Équipe : Nom Complet</li>
-                    <li>Chef d'Équipe : Année d'Études</li>
-                    <li>Chef d'Équipe : Adresse Email</li>
-                    <li>Chef d'Équipe : Numéro de Téléphone</li>
-                    <li>Membres de l'Équipe (nom et année, un par ligne)</li>
-                    <li>Domaine du Projet</li>
-                    <li>Résumé du Projet (100-150 mots)</li>
+                    <li><code>num_equipe</code> — identifiant unique fourni par l'organisateur</li>
+                    <li><code>nom_equipe</code> — nom complet de l'équipe</li>
                   </ul>
                 </div>
               </details>
@@ -248,36 +242,19 @@ const AdminTeamImport = () => {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Nom du Projet</TableHead>
-                          <TableHead>Domaine</TableHead>
-                          <TableHead>Chef d'Équipe</TableHead>
-                          <TableHead>Description</TableHead>
-                          <TableHead>Membres</TableHead>
+                          <TableHead>Numéro</TableHead>
+                          <TableHead>Nom de l'Équipe</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {preview.preview_rows.map((row, index) => (
                           <TableRow key={index}>
                             <TableCell className="font-medium">
-                              {row.project_name}
+                              {row.num_equipe}
                             </TableCell>
                             <TableCell>
-                              {row.project_domain || "-"}
+                              {row.nom_equipe}
                             </TableCell>
-                            <TableCell>
-                              <div className="text-sm">
-                                {row.team_leader_name && (
-                                  <div className="font-medium">{row.team_leader_name}</div>
-                                )}
-                                {row.team_leader_email && (
-                                  <div className="text-muted-foreground text-xs">{row.team_leader_email}</div>
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell className="max-w-md truncate">
-                              {row.short_description}
-                            </TableCell>
-                            <TableCell>{row.members || "-"}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -309,7 +286,9 @@ const AdminTeamImport = () => {
                     <p className="font-medium mb-2">Équipes Créées :</p>
                     <ul className="list-disc list-inside">
                       {commitResult.created.map((team) => (
-                        <li key={team.id}>{team.project_name}</li>
+                        <li key={team.num_equipe}>
+                          #{team.num_equipe} — {team.nom_equipe}
+                        </li>
                       ))}
                     </ul>
                   </div>

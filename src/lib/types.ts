@@ -1,19 +1,8 @@
 // API Data Models
 
 export interface Team {
-  id: number;
-  project_name: string;
-  team_leader_name: string;
-  team_leader_year: string;
-  team_leader_email: string;
-  team_leader_phone: string;
-  project_domain: string;
-  short_description: string;
-  members: string; // Semicolon-separated
-  members_list: string[];
-  extra_info: Record<string, any>;
-  created_at: string; // ISO 8601
-  updated_at: string; // ISO 8601
+  num_equipe: string;
+  nom_equipe: string;
 }
 
 export interface Judge {
@@ -44,14 +33,8 @@ export interface JudgeBasic {
 }
 
 export interface TeamBasic {
-  id: number;
-  project_name: string;
-  team_leader_name: string;
-  team_leader_year: string;
-  team_leader_email: string;
-  team_leader_phone: string;
-  project_domain: string;
-  short_description: string;
+  num_equipe: string;
+  nom_equipe: string;
 }
 
 export interface Criterion {
@@ -98,8 +81,8 @@ export interface Evaluation {
 }
 
 export interface RankingItem {
-  team_id: number;
-  project_name: string;
+  num_equipe: string;
+  nom_equipe: string;
   average_score: string; // Decimal as string
   total_evaluations: number;
   criterion_breakdown: {
@@ -111,15 +94,8 @@ export interface RankingItem {
 }
 
 export interface CreateTeamRequest {
-  project_name: string;
-  team_leader_name?: string;
-  team_leader_year?: string;
-  team_leader_email?: string;
-  team_leader_phone?: string;
-  project_domain?: string;
-  short_description: string;
-  members: string;
-  extra_info?: Record<string, any>;
+  num_equipe: string;
+  nom_equipe: string;
 }
 
 export interface UpdateTeamRequest extends Partial<CreateTeamRequest> {}
@@ -145,7 +121,7 @@ export interface JudgeLoginResponse {
 }
 
 export interface SubmitScoreRequest {
-  team_id: number;
+  team_id: string;
   scores: {
     [criterionKey: string]: CriterionScore;
   };
@@ -155,7 +131,7 @@ export interface SubmitScoreRequest {
 export interface SubmitScoreResponse {
   message: string;
   evaluation: {
-    team_id: number;
+    team_id: string;
     total: string;
     scores: {
       [criterionKey: string]: CriterionScore;
@@ -179,7 +155,7 @@ export interface CSVUploadPreviewResponse {
 
 export interface CSVUploadCommitResponse {
   message: string;
-  created: Array<{ id: number; project_name: string }>;
+  created: Array<{ num_equipe: string; nom_equipe: string }>;
   errors: string[];
 }
 
@@ -201,7 +177,7 @@ export interface WebSocketMessage {
   type: "initial_ranking" | "ranking_update" | "get_ranking";
   ranking?: RankingItem[];
   judge_id?: number;
-  team_id?: number;
+  team_id?: string;
   total?: number;
 }
 

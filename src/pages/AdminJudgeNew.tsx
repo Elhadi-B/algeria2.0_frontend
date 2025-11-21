@@ -232,7 +232,7 @@ const AdminJudgeNew = () => {
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => handleInputChange("phone", e.target.value)}
-                placeholder="+213 555 123 456"
+                placeholder="0555123456"
                 required
               />
             </div>

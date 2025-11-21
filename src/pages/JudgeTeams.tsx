@@ -72,7 +72,7 @@ const JudgeTeams = () => {
       const teamsWithEvaluation = await Promise.all(
         data.map(async (team) => {
           try {
-            const evaluation = await judgeGetEvaluation(team.id);
+            const evaluation = await judgeGetEvaluation(team.num_equipe);
             if ("message" in evaluation) {
               return {
                 ...team,
@@ -105,20 +105,14 @@ const JudgeTeams = () => {
     }
   };
 
-  // Check if search query is numeric (team ID search)
-  const isNumericSearch = /^\d+$/.test(searchQuery.trim());
-
   const filteredTeams = teams.filter((team) => {
     // Apply search filter
     let matchesSearch = true;
     if (searchQuery) {
-      if (isNumericSearch) {
-        matchesSearch = team.id.toString() === searchQuery.trim();
-      } else {
-        matchesSearch =
-          team.project_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          team.short_description.toLowerCase().includes(searchQuery.toLowerCase());
-      }
+      const query = searchQuery.trim().toLowerCase();
+      matchesSearch =
+        team.num_equipe.toLowerCase().includes(query) ||
+        team.nom_equipe.toLowerCase().includes(query);
     }
 
     // Apply view mode filter
@@ -167,7 +161,7 @@ const JudgeTeams = () => {
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Rechercher des équipes ou entrer l'ID..."
+                placeholder="Rechercher par numéro ou nom d'équipe..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 w-full"
@@ -240,18 +234,13 @@ const JudgeTeams = () => {
                   <TableBody>
                     {filteredTeams.map((team) => (
                       <TableRow 
-                        key={team.id}
+                        key={team.num_equipe}
                         className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => navigate(`/judge/teams/${team.id}`)}
+                        onClick={() => navigate(`/judge/teams/${team.num_equipe}`)}
                       >
-                        <TableCell className="font-medium">#{team.id}</TableCell>
+                        <TableCell className="font-medium">#{team.num_equipe}</TableCell>
                         <TableCell>
-                          <div>
-                            <div className="font-medium">{team.project_name}</div>
-                            {team.project_domain && (
-                              <div className="text-sm text-muted-foreground mt-1">{team.project_domain}</div>
-                            )}
-                          </div>
+                          <div className="font-medium">{team.nom_equipe}</div>
                         </TableCell>
                         <TableCell>
                           {team.hasEvaluation ? (
@@ -287,15 +276,15 @@ const JudgeTeams = () => {
           ) : (
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">{filteredTeams.map((team) => (
                 <Card 
-                  key={team.id} 
+                  key={team.num_equipe} 
                   className="hover:shadow-lg transition-all cursor-pointer group flex flex-col"
-                  onClick={() => navigate(`/judge/teams/${team.id}`)}
+                  onClick={() => navigate(`/judge/teams/${team.num_equipe}`)}
                 >
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
-                        <CardTitle className="text-lg sm:text-xl break-words hyphens-auto">{team.project_name}</CardTitle>
-                        <div className="text-xs text-muted-foreground mt-1">ID: #{team.id}</div>
+                        <CardTitle className="text-lg sm:text-xl break-words hyphens-auto">{team.nom_equipe}</CardTitle>
+                        <div className="text-xs text-muted-foreground mt-1">Numéro: #{team.num_equipe}</div>
                       </div>
                       {team.hasEvaluation && (
                         <Badge className="bg-success text-success-foreground text-sm sm:text-base shrink-0">
@@ -303,14 +292,8 @@ const JudgeTeams = () => {
                         </Badge>
                       )}
                     </div>
-                    {team.project_domain && (
-                      <div className="text-sm text-muted-foreground mt-2 break-words">{team.project_domain}</div>
-                    )}
                   </CardHeader>
                   <CardContent className="space-y-3 flex-1 flex flex-col">
-                    <p className="text-sm text-muted-foreground line-clamp-3 break-words flex-1">
-                      {team.short_description}
-                    </p>
                     <Button className="w-full mt-auto" variant={team.hasEvaluation ? "outline" : "default"}>
                       <span className="truncate">{team.hasEvaluation ? "Modifier Évaluation" : "Évaluer Maintenant"}</span>
                     </Button>

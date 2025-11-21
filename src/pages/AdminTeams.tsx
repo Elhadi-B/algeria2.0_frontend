@@ -82,16 +82,16 @@ const AdminTeams = () => {
     loadTeams();
   }, [loadTeams]);
 
-  const handleDelete = async (id: number, projectName: string) => {
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer "${projectName}" ?`)) {
+  const handleDelete = async (numEquipe: string, nomEquipe: string) => {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer l'équipe "${nomEquipe}" (${numEquipe}) ?`)) {
       return;
     }
 
     try {
-      await adminDeleteTeam(id);
+      await adminDeleteTeam(numEquipe);
       toast({
         title: "Équipe supprimée",
-        description: `"${projectName}" a été retirée`,
+        description: `"${nomEquipe}" a été retirée`,
       });
       await loadTeams();
     } catch (error: any) {
@@ -106,18 +106,12 @@ const AdminTeams = () => {
   // Ensure teams is always an array to prevent filter errors
   const teamsArray = Array.isArray(teams) ? teams : [];
   
-  // Check if search query is numeric (team ID search)
-  const isNumericSearch = /^\d+$/.test(searchQuery.trim());
-  
   const filteredTeams = teamsArray.filter((team) => {
-    if (isNumericSearch) {
-      // Search by team ID if query is numeric
-      return team?.id?.toString() === searchQuery.trim();
-    }
-    // Otherwise search by project name and description
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return true;
     return (
-      team?.project_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      team?.short_description?.toLowerCase().includes(searchQuery.toLowerCase())
+      team?.num_equipe?.toLowerCase().includes(query) ||
+      team?.nom_equipe?.toLowerCase().includes(query)
     );
   });
 
@@ -170,9 +164,9 @@ const AdminTeams = () => {
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative w-full">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Rechercher des équipes ou entrer l'ID de l'équipe..."
+            placeholder="Rechercher par numéro ou nom d'équipe..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 w-full"
@@ -208,51 +202,21 @@ const AdminTeams = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-16">ID</TableHead>
-                  <TableHead>Projet</TableHead>
-                  <TableHead>Chef d'Équipe</TableHead>
-                  <TableHead>Membres</TableHead>
+                  <TableHead className="w-32">Numéro</TableHead>
+                  <TableHead>Nom de l'Équipe</TableHead>
                   <TableHead className="w-32 text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredTeams.map((team) => (
-                  <TableRow key={team.id} className="hover:bg-muted/50">
-                    <TableCell className="font-medium">#{team.id}</TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{team.project_name}</div>
-                        {team.project_domain && (
-                          <div className="text-sm text-muted-foreground mt-1">{team.project_domain}</div>
-                        )}
-                        {team.short_description && (
-                          <div className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                            {team.short_description}
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        {team.team_leader_name && (
-                          <div className="font-medium">{team.team_leader_name}</div>
-                        )}
-                        {team.team_leader_email && (
-                          <div className="text-muted-foreground">{team.team_leader_email}</div>
-                        )}
-                        {team.team_leader_phone && (
-                          <div className="text-muted-foreground">{team.team_leader_phone}</div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {team.members || "—"}
-                    </TableCell>
+                  <TableRow key={team.num_equipe} className="hover:bg-muted/50">
+                    <TableCell className="font-medium">#{team.num_equipe}</TableCell>
+                    <TableCell className="font-medium">{team.nom_equipe}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex gap-2 justify-end">
                         <Button
                           size="sm"
-                          onClick={() => navigate(`/admin/teams/${team.id}/edit`)}
+                          onClick={() => navigate(`/admin/teams/${team.num_equipe}/edit`)}
                         >
                           <Edit className="h-3 w-3 mr-1" />
                           Modifier
@@ -260,7 +224,7 @@ const AdminTeams = () => {
                         <Button
                           size="sm"
                           className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                          onClick={() => handleDelete(team.id, team.project_name)}
+                          onClick={() => handleDelete(team.num_equipe, team.nom_equipe)}
                         >
                           <Trash2 className="h-3 w-3" />
                         </Button>
@@ -273,39 +237,21 @@ const AdminTeams = () => {
           </div>
         </Card>
       ) : (
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">{filteredTeams.map((team) => (
-            <Card key={team.id} className="hover:shadow-lg transition-shadow flex flex-col">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">{filteredTeams.map((team) => (
+            <Card key={team.num_equipe} className="hover:shadow-lg transition-shadow flex flex-col">
               <CardHeader className="pb-3">
                 <div className="flex flex-col gap-1">
-                  <CardTitle className="text-lg break-words hyphens-auto">{team.project_name}</CardTitle>
-                  <div className="text-xs text-muted-foreground">ID: #{team.id}</div>
+                  <CardTitle className="text-lg break-words hyphens-auto">{team.nom_equipe}</CardTitle>
+                  <div className="text-xs text-muted-foreground">Numéro: #{team.num_equipe}</div>
                 </div>
-                {team.project_domain && (
-                  <div className="text-sm text-muted-foreground mt-1 break-words">{team.project_domain}</div>
-                )}
               </CardHeader>
               <CardContent className="space-y-3 flex-1 flex flex-col">
-                <div className="space-y-1">
-                  {team.team_leader_email && (
-                    <div className="text-xs text-muted-foreground break-all">Email: {team.team_leader_email}</div>
-                  )}
-                  {team.team_leader_phone && (
-                    <div className="text-xs text-muted-foreground break-all">Tél: {team.team_leader_phone}</div>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="text-xs font-medium text-muted-foreground mb-1">Membres</p>
-                  <p className="text-sm break-words">{team.members || "—"}</p>
-                </div>
-                <p className="text-sm text-muted-foreground line-clamp-3 break-words">
-                  {team.short_description}
-                </p>
                 <div className="flex gap-2 pt-2">
                   <Button
                     variant="outline"
                     size="sm"
                     className="flex-1 min-w-0"
-                    onClick={() => navigate(`/admin/teams/${team.id}/edit`)}
+                    onClick={() => navigate(`/admin/teams/${team.num_equipe}/edit`)}
                   >
                     <Edit className="h-3 w-3 mr-1 shrink-0" />
                     <span className="truncate">Modifier</span>
@@ -314,7 +260,7 @@ const AdminTeams = () => {
                     variant="outline"
                     size="sm"
                     className="text-destructive hover:bg-destructive hover:text-destructive-foreground shrink-0"
-                    onClick={() => handleDelete(team.id, team.project_name)}
+                    onClick={() => handleDelete(team.num_equipe, team.nom_equipe)}
                   >
                     <Trash2 className="h-3 w-3" />
                   </Button>

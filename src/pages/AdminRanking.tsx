@@ -170,14 +170,17 @@ const AdminRanking = () => {
                   const rank = index + 1;
 
                   return (
-                    <TableRow key={team.team_id}>
+                    <TableRow key={team.num_equipe}>
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
                           {rank === 1 && <TrendingUp className="h-4 w-4 text-warning" />}
                           #{rank}
                         </div>
                       </TableCell>
-                      <TableCell className="font-medium">{team.project_name}</TableCell>
+                      <TableCell className="font-medium">
+                        <div>{team.nom_equipe}</div>
+                        <div className="text-xs text-muted-foreground">Numéro: {team.num_equipe}</div>
+                      </TableCell>
                       <TableCell className="text-right font-bold text-primary">
                         {parseFloat(team.average_score).toFixed(2)}
                       </TableCell>

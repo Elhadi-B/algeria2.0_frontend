@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Save } from "lucide-react";
@@ -17,9 +16,8 @@ const AdminTeamEdit = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<UpdateTeamRequest>({
-    project_name: "",
-    short_description: "",
-    members: "",
+    num_equipe: "",
+    nom_equipe: "",
   });
 
   useEffect(() => {
@@ -33,16 +31,10 @@ const AdminTeamEdit = () => {
     
     setIsLoading(true);
     try {
-      const team = await adminGetTeam(parseInt(id));
+      const team = await adminGetTeam(id);
       setFormData({
-        project_name: team.project_name,
-        short_description: team.short_description,
-        members: team.members,
-        team_leader_name: team.team_leader_name,
-        team_leader_year: team.team_leader_year,
-        team_leader_email: team.team_leader_email,
-        team_leader_phone: team.team_leader_phone,
-        project_domain: team.project_domain,
+        num_equipe: team.num_equipe,
+        nom_equipe: team.nom_equipe,
       });
     } catch (error: any) {
       const errorMessage = error?.error || error?.detail || error?.message || "Échec du chargement de l'équipe";
@@ -72,11 +64,11 @@ const AdminTeamEdit = () => {
         ...formData,
       };
 
-      await adminUpdateTeam(parseInt(id), submitData);
+      await adminUpdateTeam(id, submitData);
       
       toast({
         title: "Équipe mise à jour",
-        description: `"${formData.project_name}" a été mise à jour avec succès`,
+        description: `"${formData.nom_equipe}" a été mise à jour avec succès`,
       });
       
       navigate("/admin/teams");
@@ -130,91 +122,26 @@ const AdminTeamEdit = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="project_name">Project Name *</Label>
+              <Label htmlFor="num_equipe">Numéro d'Équipe</Label>
               <Input
-                id="project_name"
-                value={formData.project_name}
-                onChange={(e) => handleInputChange("project_name", e.target.value)}
-                placeholder="Enter project name"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="short_description">Short Description *</Label>
-              <Textarea
-                id="short_description"
-                value={formData.short_description}
-                onChange={(e) => handleInputChange("short_description", e.target.value)}
-                placeholder="Brief description of the project"
-                rows={4}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="team_leader_name">Team Leader Name</Label>
-              <Input
-                id="team_leader_name"
-                value={formData.team_leader_name || ""}
-                onChange={(e) => handleInputChange("team_leader_name", e.target.value)}
-                placeholder="Enter team leader full name"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="team_leader_year">Team Leader Year of Study</Label>
-              <Input
-                id="team_leader_year"
-                value={formData.team_leader_year || ""}
-                onChange={(e) => handleInputChange("team_leader_year", e.target.value)}
-                placeholder="e.g., 3rd year"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="team_leader_email">Team Leader Email</Label>
-              <Input
-                id="team_leader_email"
-                type="email"
-                value={formData.team_leader_email || ""}
-                onChange={(e) => handleInputChange("team_leader_email", e.target.value)}
-                placeholder="Enter team leader email"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="team_leader_phone">Team Leader Phone</Label>
-              <Input
-                id="team_leader_phone"
-                value={formData.team_leader_phone || ""}
-                onChange={(e) => handleInputChange("team_leader_phone", e.target.value)}
-                placeholder="Enter team leader phone number"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="project_domain">Project Domain</Label>
-              <Input
-                id="project_domain"
-                value={formData.project_domain || ""}
-                onChange={(e) => handleInputChange("project_domain", e.target.value)}
-                placeholder="e.g., Agriculture, Healthcare"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="members">Team Members *</Label>
-              <Input
-                id="members"
-                value={formData.members}
-                onChange={(e) => handleInputChange("members", e.target.value)}
-                placeholder="Enter names separated by semicolons (e.g., John;Sarah;Mike)"
-                required
+                id="num_equipe"
+                value={formData.num_equipe || ""}
+                disabled
               />
               <p className="text-xs text-muted-foreground">
-                Separate multiple members with semicolons (;)
+                Le numéro est défini lors de la création et ne peut pas être modifié.
               </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="nom_equipe">Nom de l'Équipe *</Label>
+              <Input
+                id="nom_equipe"
+                value={formData.nom_equipe || ""}
+                onChange={(e) => handleInputChange("nom_equipe", e.target.value)}
+                placeholder="Mettre à jour le nom de l'équipe"
+                required
+              />
             </div>
 
             <div className="flex gap-4 pt-4">
