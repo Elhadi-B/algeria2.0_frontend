@@ -40,10 +40,10 @@ const JudgeEvaluation = () => {
       const sortedCriteria = data.sort((a, b) => a.order - b.order);
       setCriteria(sortedCriteria);
       
-      // Initialize scores with default value of 3 for each criterion (middle value 0-5)
+      // Initialize scores with default value of 0 for each criterion
       const initialScores: Record<string, CriterionScore> = {};
       sortedCriteria.forEach((criterion) => {
-        initialScores[criterion.key] = { score: 3 };
+        initialScores[criterion.key] = { score: 0 };
       });
       setScores(initialScores);
     } catch (error) {
