@@ -62,13 +62,13 @@ const JudgeEvaluation = () => {
     setIsLoading(true);
     try {
       // First try to get evaluation (which includes team info)
-      const evaluation = await judgeGetEvaluation(parseInt(teamId));
+      const evaluation = await judgeGetEvaluation(teamId);
       
       if ("message" in evaluation) {
         // No evaluation found, get team info from teams list
         const { judgeListTeams } = await import("@/lib/api");
         const teams = await judgeListTeams();
-        const foundTeam = teams.find((t) => t.id === parseInt(teamId));
+        const foundTeam = teams.find((t) => t.num_equipe === teamId);
         if (foundTeam) {
           setTeam(foundTeam);
         } else {
