@@ -252,7 +252,7 @@ const AdminWinners = () => {
 
   const startShuffleAnimation = (targetPlace: number) => {
     // Reset any previous state
-    resetAnimation();
+    resetAnimation(false);
     
     const topThree = getTopThree();
     let winnerTeams: RankingItem[] = [];
@@ -288,13 +288,14 @@ const AdminWinners = () => {
     }, 50);
   };
 
-  const resetAnimation = async () => {
+  const resetAnimation = async (broadcast = true) => {
     pendingAnimationRef.current = null;
-    try {
-      // Send reset message to all connected clients
-      await adminAnnounceWinner(0, 'reset');
-    } catch (error: any) {
-      console.error("Failed to send reset:", error);
+    if (broadcast) {
+      try {
+        await adminAnnounceWinner(0, 'reset');
+      } catch (error: any) {
+        console.error("Failed to send reset:", error);
+      }
     }
     
     if (animationFrameRef.current) {
@@ -392,7 +393,7 @@ const AdminWinners = () => {
             Révéler 1ère Place
           </Button>
           <Button
-            onClick={resetAnimation}
+            onClick={() => resetAnimation()}
             disabled={isAnimating}
             variant="destructive"
             size="lg"
