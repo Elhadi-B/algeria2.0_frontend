@@ -1,8 +1,15 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Trophy, Sparkles } from "lucide-react";
 import { publicGetRanking, createWinnersWebSocket } from "@/lib/api";
 import type { RankingItem } from "@/lib/types";
+
+type AnimationPayload = {
+  targetPlace: number;
+  winnerTeams: RankingItem[];
+  winnerColor: string;
+  winnerNums: Set<string>;
+};
 
 const PublicWinners = () => {
   const [rankings, setRankings] = useState<RankingItem[]>([]);
@@ -13,6 +20,157 @@ const PublicWinners = () => {
   const animationIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
+  const overlayRef = useRef<HTMLDivElement | null>(null);
+  const pendingAnimationRef = useRef<AnimationPayload | null>(null);
+
+  const triggerAnimationIfReady = useCallback(() => {
+    const payload = pendingAnimationRef.current;
+    if (!payload) {
+      return false;
+    }
+
+    const cards = document.querySelectorAll('.team-card');
+    if (cards.length === 0) {
+      return false;
+    }
+
+    pendingAnimationRef.current = null;
+    const { winnerTeams, winnerNums, winnerColor, targetPlace } = payload;
+
+    const originalPositions = new Map<Element, { left: number; top: number; width: number; height: number }>();
+    cards.forEach((card) => {
+      const rect = (card as HTMLElement).getBoundingClientRect();
+      originalPositions.set(card, {
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+        height: rect.height,
+      });
+    });
+
+    cards.forEach((card) => {
+      const el = card as HTMLElement;
+      el.style.position = 'absolute';
+      el.style.transition = 'none';
+      el.style.transform = 'translate(0, 0) rotate(0deg)';
+    });
+
+    let startTime = Date.now();
+    const rapidDuration = 3000;
+    const slowDuration = 2000;
+
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const activeCards = document.querySelectorAll('.team-card');
+
+      if (elapsed < rapidDuration) {
+        setAnimationPhase('rapid');
+        activeCards.forEach((card) => {
+          const randomX = (Math.random() - 0.5) * (window.innerWidth * 0.7);
+          const randomY = (Math.random() - 0.5) * (window.innerHeight * 0.7);
+          const randomRotate = (Math.random() - 0.5) * 360;
+          const el = card as HTMLElement;
+          el.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg)`;
+          el.style.transition = 'none';
+        });
+        animationFrameRef.current = requestAnimationFrame(animate);
+      } else if (elapsed < rapidDuration + slowDuration) {
+        setAnimationPhase('slowing');
+        const progress = (elapsed - rapidDuration) / slowDuration;
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        let winnerIndex = 0;
+
+        activeCards.forEach((card) => {
+          const teamId = card.getAttribute('data-team-id');
+          const el = card as HTMLElement;
+          const isWinner = teamId && winnerNums.has(teamId);
+
+          if (isWinner) {
+            const offsetX = (winnerIndex - (winnerTeams.length - 1) / 2) * 150;
+            const targetX = centerX - 60 + offsetX - (window.innerWidth / 2);
+            const targetY = centerY - 40 - (window.innerHeight / 2);
+            const currentX = targetX * (1 - easeOut);
+            const currentY = targetY * (1 - easeOut);
+            const currentRotate = 360 * (1 - easeOut);
+            const currentScale = 0.8 + (1.2 - 0.8) * easeOut;
+
+            el.style.transition = 'transform 0.1s linear, box-shadow 0.1s linear';
+            el.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${currentRotate}deg) scale(${currentScale})`;
+            el.style.boxShadow = `0 0 ${20 * easeOut}px ${winnerColor}`;
+            el.style.borderColor = winnerColor;
+            el.style.borderWidth = `${2 + 2 * easeOut}px`;
+
+            winnerIndex++;
+          } else {
+            const randomX = (Math.random() - 0.5) * (window.innerWidth * 0.7) * (1 - easeOut);
+            const randomY = (Math.random() - 0.5) * (window.innerHeight * 0.7) * (1 - easeOut);
+            const randomRotate = (Math.random() - 0.5) * 360 * (1 - easeOut);
+            const opacity = 1 - easeOut;
+            const scale = 1 - easeOut * 0.5;
+
+            el.style.transition = 'transform 0.1s linear, opacity 0.1s linear';
+            el.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg) scale(${scale})`;
+            el.style.opacity = opacity.toString();
+          }
+        });
+        animationFrameRef.current = requestAnimationFrame(animate);
+      } else {
+        setAnimationPhase('stopping');
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        let winnerIndex = 0;
+
+        activeCards.forEach((card) => {
+          const teamId = card.getAttribute('data-team-id');
+          const el = card as HTMLElement;
+          const isWinner = teamId && winnerNums.has(teamId);
+
+          if (isWinner) {
+            const originalPos = originalPositions.get(card);
+            if (originalPos) {
+              const cardWidth = originalPos.width || 120;
+              const offsetX = winnerTeams.length === 1 ? 0 : (winnerIndex - (winnerTeams.length - 1) / 2) * 150;
+              const targetCenterX = centerX - cardWidth / 2 + offsetX;
+              const targetCenterY = centerY - 40;
+              const finalX = targetCenterX - originalPos.left;
+              const finalY = targetCenterY - originalPos.top;
+
+              el.style.transition = 'transform 0.5s ease-out, box-shadow 0.5s ease-out';
+              el.style.transform = `translate(${finalX}px, ${finalY}px) rotate(0deg) scale(1.1)`;
+              el.style.boxShadow = `0 0 30px ${winnerColor}`;
+            }
+            winnerIndex++;
+          } else {
+            el.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+            el.style.opacity = '0';
+            el.style.transform = 'translate(0, 0) rotate(0deg) scale(0.5)';
+          }
+        });
+
+        setTimeout(() => {
+          setIsAnimating(false);
+          setAnimationPhase('idle');
+          setRevealedPlace(targetPlace);
+
+          activeCards.forEach((card) => {
+            const el = card as HTMLElement;
+            el.style.position = '';
+            el.style.opacity = '';
+            el.style.transform = '';
+            el.style.transition = '';
+            el.style.boxShadow = '';
+            el.style.borderColor = '';
+            el.style.borderWidth = '';
+          });
+        }, 600);
+      }
+    };
+
+    animationFrameRef.current = requestAnimationFrame(animate);
+    return true;
+  }, [setAnimationPhase, setIsAnimating, setRevealedPlace]);
 
   useEffect(() => {
     loadRankings();
@@ -58,6 +216,30 @@ const PublicWinners = () => {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (!isAnimating) {
+      return;
+    }
+
+    if (triggerAnimationIfReady()) {
+      return;
+    }
+
+    if (!overlayRef.current) {
+      return;
+    }
+
+    const observer = new MutationObserver(() => {
+      if (triggerAnimationIfReady()) {
+        observer.disconnect();
+      }
+    });
+
+    observer.observe(overlayRef.current, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
+  }, [isAnimating, rankings.length, triggerAnimationIfReady]);
 
   const loadRankings = async () => {
     setIsLoading(true);
@@ -117,190 +299,25 @@ const PublicWinners = () => {
     
     const winnerNums = new Set(winnerTeams.map(t => t.num_equipe));
     
-    // Small delay to ensure DOM is ready
     setTimeout(() => {
+      pendingAnimationRef.current = {
+        targetPlace,
+        winnerTeams,
+        winnerColor,
+        winnerNums,
+      };
       setIsAnimating(true);
       setAnimationPhase('rapid');
       setRevealedPlace(null);
-      
-      // Define animation function first
-      const startAnimation = () => {
-        const cards = document.querySelectorAll('.team-card');
 
-        // Store original positions before making cards absolute
-        const originalPositions = new Map<Element, { left: number; top: number; width: number; height: number }>();
-        cards.forEach((card) => {
-          const rect = (card as HTMLElement).getBoundingClientRect();
-          originalPositions.set(card, {
-            left: rect.left,
-            top: rect.top,
-            width: rect.width,
-            height: rect.height
-          });
-        });
-
-        // Initialize starting positions (centered)
-        cards.forEach((card) => {
-          (card as HTMLElement).style.position = 'absolute';
-          (card as HTMLElement).style.transition = 'none';
-          (card as HTMLElement).style.transform = 'translate(0, 0) rotate(0deg)';
-        });
-
-        let startTime = Date.now();
-        const rapidDuration = 3000; // 3 seconds of rapid shuffling
-        const slowDuration = 2000; // 2 seconds of slowing down
-
-        const animate = () => {
-          const elapsed = Date.now() - startTime;
-          const cards = document.querySelectorAll('.team-card');
-          
-          if (elapsed < rapidDuration) {
-            // Rapid shuffling phase - fast random movements
-            setAnimationPhase('rapid');
-            cards.forEach((card) => {
-              const randomX = (Math.random() - 0.5) * (window.innerWidth * 0.7);
-              const randomY = (Math.random() - 0.5) * (window.innerHeight * 0.7);
-              const randomRotate = (Math.random() - 0.5) * 360;
-              (card as HTMLElement).style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg)`;
-              (card as HTMLElement).style.transition = 'none';
-            });
-            animationFrameRef.current = requestAnimationFrame(animate);
-          } else if (elapsed < rapidDuration + slowDuration) {
-            // Slowing down phase - gradually move winners to center, others fade out
-            setAnimationPhase('slowing');
-            const progress = (elapsed - rapidDuration) / slowDuration;
-            const easeOut = 1 - Math.pow(1 - progress, 3); // Ease out cubic
-            
-            const centerX = window.innerWidth / 2;
-            const centerY = window.innerHeight / 2;
-            let winnerIndex = 0;
-            
-            cards.forEach((card) => {
-              const teamId = card.getAttribute('data-team-id');
-              const isWinner = teamId && winnerNums.has(teamId);
-              
-              if (isWinner) {
-                // Winner cards move to center and highlight
-                const offsetX = (winnerIndex - (winnerTeams.length - 1) / 2) * 150;
-                const targetX = centerX - 60 + offsetX - (window.innerWidth / 2);
-                const targetY = centerY - 40 - (window.innerHeight / 2);
-                
-                const currentX = targetX * (1 - easeOut);
-                const currentY = targetY * (1 - easeOut);
-                const currentRotate = 360 * (1 - easeOut);
-                const currentScale = 0.8 + (1.2 - 0.8) * easeOut;
-                
-                (card as HTMLElement).style.transition = 'transform 0.1s linear, box-shadow 0.1s linear';
-                (card as HTMLElement).style.transform = `translate(${currentX}px, ${currentY}px) rotate(${currentRotate}deg) scale(${currentScale})`;
-                (card as HTMLElement).style.boxShadow = `0 0 ${20 * easeOut}px ${winnerColor}`;
-                (card as HTMLElement).style.borderColor = winnerColor;
-                (card as HTMLElement).style.borderWidth = `${2 + 2 * easeOut}px`;
-                
-                winnerIndex++;
-              } else {
-                // Non-winner cards fade out and move away
-                const randomX = (Math.random() - 0.5) * (window.innerWidth * 0.7) * (1 - easeOut);
-                const randomY = (Math.random() - 0.5) * (window.innerHeight * 0.7) * (1 - easeOut);
-                const randomRotate = (Math.random() - 0.5) * 360 * (1 - easeOut);
-                const opacity = 1 - easeOut;
-                const scale = 1 - easeOut * 0.5;
-                
-                (card as HTMLElement).style.transition = 'transform 0.1s linear, opacity 0.1s linear';
-                (card as HTMLElement).style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg) scale(${scale})`;
-                (card as HTMLElement).style.opacity = opacity.toString();
-              }
-            });
-            animationFrameRef.current = requestAnimationFrame(animate);
-          } else {
-            // Stop and reveal - fade out non-winners completely, keep winners highlighted
-            setAnimationPhase('stopping');
-            const centerX = window.innerWidth / 2;
-            const centerY = window.innerHeight / 2;
-            let winnerIndex = 0;
-            
-            cards.forEach((card) => {
-              const teamId = card.getAttribute('data-team-id');
-              const isWinner = teamId && winnerNums.has(teamId);
-              
-              if (isWinner) {
-                // Calculate final centered position for winners using original position
-                const originalPos = originalPositions.get(card);
-                if (originalPos) {
-                  const cardWidth = originalPos.width || 120;
-                  // For single winner, center it perfectly. For multiple, space them evenly
-                  const offsetX = winnerTeams.length === 1 
-                    ? 0 
-                    : (winnerIndex - (winnerTeams.length - 1) / 2) * 150;
-                  const targetCenterX = centerX - cardWidth / 2 + offsetX;
-                  const targetCenterY = centerY - 40;
-                  
-                  // Calculate translation needed from original position to center
-                  const finalX = targetCenterX - originalPos.left;
-                  const finalY = targetCenterY - originalPos.top;
-                  
-                  // Keep winners visible and highlighted at center
-                  (card as HTMLElement).style.transition = 'transform 0.5s ease-out, box-shadow 0.5s ease-out';
-                  (card as HTMLElement).style.transform = `translate(${finalX}px, ${finalY}px) rotate(0deg) scale(1.1)`;
-                  (card as HTMLElement).style.boxShadow = `0 0 30px ${winnerColor}`;
-                }
-                winnerIndex++;
-              } else {
-                // Fade out non-winners
-                (card as HTMLElement).style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
-                (card as HTMLElement).style.opacity = '0';
-                (card as HTMLElement).style.transform = 'translate(0, 0) rotate(0deg) scale(0.5)';
-              }
-            });
-            
-            setTimeout(() => {
-              setIsAnimating(false);
-              setAnimationPhase('idle');
-              setRevealedPlace(targetPlace);
-              
-              // Reset card styles
-              cards.forEach((card) => {
-                (card as HTMLElement).style.position = '';
-                (card as HTMLElement).style.opacity = '';
-                (card as HTMLElement).style.transform = '';
-                (card as HTMLElement).style.transition = '';
-                (card as HTMLElement).style.boxShadow = '';
-                (card as HTMLElement).style.borderColor = '';
-                (card as HTMLElement).style.borderWidth = '';
-              });
-            }, 600);
-          }
-        };
-
-        animationFrameRef.current = requestAnimationFrame(animate);
-      };
-      
-      // Wait for React to render the cards - retry mechanism for production
-      const waitForCards = (retries = 20) => {
-        const cards = document.querySelectorAll('.team-card');
-        console.log(`Checking for cards, attempt ${21 - retries}, found: ${cards.length}`);
-        
-        if (cards.length === 0 && retries > 0) {
-          setTimeout(() => waitForCards(retries - 1), 100);
-          return;
-        }
-        if (cards.length === 0) {
-          console.error("No cards found after all retries, skipping animation. Rankings count:", rankings.length);
-          setIsAnimating(false);
-          setRevealedPlace(targetPlace);
-          return;
-        }
-        
-        console.log(`Cards found: ${cards.length}, starting animation`);
-        // Cards found, start animation
-        startAnimation();
-      };
-      
-      // Start waiting for cards - give React more time in production
-      setTimeout(() => waitForCards(), 300);
+      requestAnimationFrame(() => {
+        triggerAnimationIfReady();
+      });
     }, 50);
   };
 
   const resetAnimation = () => {
+    pendingAnimationRef.current = null;
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = null;
@@ -421,7 +438,7 @@ const PublicWinners = () => {
         {/* Animated Team Cards - Only show when animating */}
         {isAnimating && (
           <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-50 bg-black/20 backdrop-blur-sm">
-            <div className="relative w-full h-full">
+            <div ref={overlayRef} className="relative w-full h-full">
               {rankings.map((team, index) => {
                 // Calculate initial grid position
                 const cols = Math.ceil(Math.sqrt(rankings.length));
