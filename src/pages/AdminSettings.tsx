@@ -85,7 +85,7 @@ const AdminSettings = () => {
         name: "",
         description: "",
         weight: 1.0,
-        order: criteria.length,
+        order: criteria.length > 0 ? Math.max(...criteria.map(c => c.order)) + 1 : 1,
       });
     }
     setIsDialogOpen(true);
@@ -107,6 +107,17 @@ const AdminSettings = () => {
     setIsSubmitting(true);
 
     try {
+      // Validate weight is not 0
+      if (Number(formData.weight) <= 0) {
+        toast({
+          title: "Erreur de validation",
+          description: "Le poids ne peut pas être égal à 0. Veuillez entrer un poids supérieur à 0.",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       // Validate weight sum
       const otherCriteria = criteria.filter(c => editingCriterion ? c.id !== editingCriterion.id : true);
       const currentTotalWeight = otherCriteria.reduce((sum, c) => sum + (Number(c.weight) || 0), 0);
@@ -314,12 +325,7 @@ const AdminSettings = () => {
                               max="1"
                               step="0.1"
                               value={criterion.weight}
-                              onChange={(e) =>
-                                handleQuickWeightUpdate(
-                                  criterion.id,
-                                  parseFloat(e.target.value) || 0
-                                )
-                              }
+                              disabled
                               className="w-20 h-8 text-sm"
                             />
                             <span className="text-xs text-muted-foreground whitespace-nowrap">
@@ -387,7 +393,7 @@ const AdminSettings = () => {
                 <Input
                   id="weight"
                   type="number"
-                  min="0"
+                  min="0.05"
                   max="1"
                   step="0.05"
                   value={formData.weight}
@@ -398,6 +404,9 @@ const AdminSettings = () => {
                   disabled={isSubmitting}
                 />
                 <p className="text-xs text-muted-foreground">
+                  Le poids doit être supérieur à 0
+                </p>
+                <p className="text-xs text-muted-foreground">
                   Poids dans le score final (0.0 - 1.0)
                 </p>
               </div>
@@ -407,14 +416,17 @@ const AdminSettings = () => {
                 <Input
                   id="order"
                   type="number"
-                  min="0"
+                  min="1"
                   value={formData.order}
                   onChange={(e) =>
-                    setFormData({ ...formData, order: parseInt(e.target.value) || 0 })
+                    setFormData({ ...formData, order: parseInt(e.target.value) || 1 })
                   }
                   required
                   disabled={isSubmitting}
                 />
+                <p className="text-xs text-muted-foreground">
+                  L'ordre commence à 1
+                </p>
                 <p className="text-xs text-muted-foreground">
                   Ordre dans le formulaire d'évaluation
                 </p>

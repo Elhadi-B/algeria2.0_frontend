@@ -21,9 +21,17 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    sessionStorage.removeItem("adminAuthenticated");
-    navigate("/admin/login");
+  const handleLogout = async () => {
+    try {
+      const { adminLogout } = await import("@/lib/api");
+      await adminLogout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      sessionStorage.removeItem("adminAuthenticated");
+      sessionStorage.removeItem("adminUser");
+      navigate("/admin/login");
+    }
   };
 
   const navItems = [
@@ -32,6 +40,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { path: "/admin/teams", icon: Users, label: "Équipes" },
     { path: "/admin/judges", icon: FileText, label: "Jurys" },
     { path: "/admin/ranking", icon: Trophy, label: "Classements" },
+    { path: "/admin/winners", icon: Trophy, label: "Annonce Gagnants" },
     { path: "/admin/settings", icon: Settings, label: "Paramètres" },
   ];
 

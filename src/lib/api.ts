@@ -473,6 +473,20 @@ export async function adminGetRanking(
 }
 
 /**
+ * Public: Get ranking (no authentication required)
+ */
+export async function publicGetRanking(): Promise<RankingItem[]> {
+  const url = `${API_BASE_URL}/public/ranking/`;
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return handleResponse<RankingItem[]>(response);
+}
+
+/**
  * Admin: Export results as CSV
  */
 export async function adminExportCSV(): Promise<void> {
@@ -591,9 +605,12 @@ export async function judgeLogin(data: JudgeLoginRequest): Promise<JudgeLoginRes
   );
   const result = await handleResponse<JudgeLoginResponse>(response);
   
-  // Store token in localStorage
+  // Store token and judge info in localStorage
   if (result.judge.token) {
     localStorage.setItem("judgeToken", result.judge.token);
+  }
+  if (result.judge) {
+    localStorage.setItem("judgeInfo", JSON.stringify(result.judge));
   }
   
   return result;
@@ -652,14 +669,70 @@ export async function judgeSubmitScore(data: SubmitScoreRequest): Promise<Submit
 /**
  * Create WebSocket connection for ranking updates
  */
+/**
+ * Admin: Announce winner (triggers WebSocket broadcast)
+ */
+export async function adminAnnounceWinner(place: number, action: 'start_animation' | 'reveal' | 'reset' = 'start_animation'): Promise<void> {
+  const response = await fetchWithErrorHandling(
+    `${API_BASE_URL}/admin/announce-winner/`,
+    createRequestOptions("POST", { place, action })
+  );
+  await handleResponse(response);
+}
+
+/**
+ * Create WebSocket connection for winners announcements (public)
+ */
+export function createWinnersWebSocket(
+  onMessage: (data: any) => void,
+  onOpen?: () => void,
+  onError?: (error: Event) => void,
+  onClose?: () => void
+): WebSocket {
+  // Determine WebSocket URL based on environment
+  const isProduction = import.meta.env.PROD;
+  const wsUrl = isProduction
+    ? "wss://jury.algeria20.com/ws/winners/"
+    : "ws://localhost:8000/ws/winners/";
+  const ws = new WebSocket(wsUrl);
+  
+  ws.onopen = () => {
+    if (onOpen) onOpen();
+  };
+  
+  ws.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      onMessage(data);
+    } catch (error) {
+      console.error("Failed to parse WebSocket message:", error);
+    }
+  };
+  
+  ws.onerror = (error) => {
+    console.error("Winners WebSocket error:", error);
+    if (onError) onError(error);
+  };
+  
+  ws.onclose = () => {
+    if (onClose) onClose();
+  };
+  
+  return ws;
+}
+
 export function createRankingWebSocket(
   onMessage: (data: any) => void,
   onOpen?: () => void,
   onError?: (error: Event) => void,
   onClose?: () => void
 ): WebSocket {
-  const ws = new WebSocket("wss://jury.algeria20.com/ws/ranking/");
-
+  // Determine WebSocket URL based on environment
+  const isProduction = import.meta.env.PROD;
+  const wsUrl = isProduction
+    ? "wss://jury.algeria20.com/ws/ranking/"
+    : "ws://localhost:8000/ws/ranking/";
+  const ws = new WebSocket(wsUrl);
   ws.onopen = () => {
     // Request initial ranking
     ws.send(JSON.stringify({ type: "get_ranking" }));

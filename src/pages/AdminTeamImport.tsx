@@ -205,13 +205,6 @@ const AdminTeamImport = () => {
 
           {preview && (
             <div className="space-y-4">
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Mode Prévisualisation</AlertTitle>
-                <AlertDescription>
-                  {preview.message || "Vérifiez les données ci-dessous. Cliquez sur 'Importer Équipes' pour valider."}
-                </AlertDescription>
-              </Alert>
 
               <div className="space-y-2">
                 <p className="text-sm font-medium">
@@ -222,6 +215,20 @@ const AdminTeamImport = () => {
                     </span>
                   )}
                 </p>
+
+                {preview.warnings && preview.warnings.length > 0 && (
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Avertissements</AlertTitle>
+                    <AlertDescription>
+                      <ul className="list-disc list-inside mt-2">
+                        {preview.warnings.map((warning, index) => (
+                          <li key={index}>{warning}</li>
+                        ))}
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+                )}
 
                 {preview.errors.length > 0 && (
                   <Alert variant="destructive">
@@ -265,7 +272,7 @@ const AdminTeamImport = () => {
                 <Button
                   type="button"
                   onClick={handleCommit}
-                  disabled={isLoading || preview.errors.length > 0}
+                  disabled={isLoading}
                   className="w-full"
                 >
                   <CheckCircle2 className="h-4 w-4 mr-2" />
@@ -289,6 +296,16 @@ const AdminTeamImport = () => {
                         <li key={team.num_equipe}>
                           #{team.num_equipe} — {team.nom_equipe}
                         </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {commitResult.warnings && commitResult.warnings.length > 0 && (
+                  <div className="mt-4">
+                    <p className="font-medium text-amber-600 mb-2">Avertissements :</p>
+                    <ul className="list-disc list-inside">
+                      {commitResult.warnings.map((warning, index) => (
+                        <li key={index}>{warning}</li>
                       ))}
                     </ul>
                   </div>

@@ -166,8 +166,8 @@ const AdminRanking = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                rankings.map((team, index) => {
-                  const rank = index + 1;
+                rankings.map((team) => {
+                  const rank = team.rank || 0;
 
                   return (
                     <TableRow key={team.num_equipe}>

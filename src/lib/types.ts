@@ -85,6 +85,7 @@ export interface RankingItem {
   nom_equipe: string;
   average_score: string; // Decimal as string
   total_evaluations: number;
+  rank?: number; // Rank with tie handling
   criterion_breakdown: {
     [criterionName: string]: {
       average: number;
@@ -149,14 +150,16 @@ export interface CSVUploadPreviewResponse {
   preview_rows: any[];
   total_rows: number;
   errors: string[];
+  warnings?: string[];
   commit: false;
-  message: string;
+  message?: string;
 }
 
 export interface CSVUploadCommitResponse {
   message: string;
   created: Array<{ num_equipe: string; nom_equipe: string }>;
   errors: string[];
+  warnings?: string[];
 }
 
 export interface RegenerateTokenResponse {

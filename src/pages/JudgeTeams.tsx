@@ -28,6 +28,7 @@ const JudgeTeams = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [teams, setTeams] = useState<TeamWithEvaluation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [judgeName, setJudgeName] = useState<string>("");
   const [viewMode, setViewMode] = useState<"all" | "pending" | "evaluated">(() => {
     return (localStorage.getItem("judgeTeamsViewMode") as "all" | "pending" | "evaluated") || "all";
   });
@@ -61,6 +62,16 @@ const JudgeTeams = () => {
 
   useEffect(() => {
     loadTeams();
+    // Load judge name from localStorage
+    const storedJudgeInfo = localStorage.getItem("judgeInfo");
+    if (storedJudgeInfo) {
+      try {
+        const judge = JSON.parse(storedJudgeInfo);
+        setJudgeName(judge.name || "");
+      } catch (e) {
+        console.error("Failed to parse judge info:", e);
+      }
+    }
   }, []);
 
   const loadTeams = async () => {
@@ -68,9 +79,21 @@ const JudgeTeams = () => {
     try {
       const data = await judgeListTeams();
       
+      // Sort teams by num_equipe ascending
+      const sortedData = [...data].sort((a, b) => {
+        // Extract numeric part if possible for natural sorting
+        const numA = parseInt(a.num_equipe) || 0;
+        const numB = parseInt(b.num_equipe) || 0;
+        if (numA !== numB) {
+          return numA - numB;
+        }
+        // If not numeric, sort alphabetically
+        return a.num_equipe.localeCompare(b.num_equipe);
+      });
+      
       // Check which teams have evaluations and load their scores
       const teamsWithEvaluation = await Promise.all(
-        data.map(async (team) => {
+        sortedData.map(async (team) => {
           try {
             const evaluation = await judgeGetEvaluation(team.num_equipe);
             if ("message" in evaluation) {
@@ -127,6 +150,7 @@ const JudgeTeams = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("judgeToken");
+    localStorage.removeItem("judgeInfo");
     navigate("/judge/login");
   };
 
@@ -138,7 +162,12 @@ const JudgeTeams = () => {
           <div className="flex justify-between items-center gap-2">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
               <img src="/logo/logo-algeria20.svg" alt="Algeria 2.0" className="h-12 w-12 sm:h-16 sm:w-16 shrink-0" />
-              <h1 className="text-base sm:text-xl font-bold truncate">Évaluation Hackathon</h1>
+              <div className="flex flex-col min-w-0">
+                <h1 className="text-base sm:text-xl font-bold truncate">Évaluation Hackathon</h1>
+                {judgeName && (
+                  <p className="text-sm sm:text-base font-medium text-primary truncate">{judgeName}</p>
+                )}
+              </div>
             </div>
             <Button variant="outline" size="sm" onClick={handleLogout} className="shrink-0 text-xs sm:text-sm px-2 sm:px-4">
               Déconnexion

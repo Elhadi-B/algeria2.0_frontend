@@ -19,6 +19,7 @@ const JudgeEvaluation = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [criteria, setCriteria] = useState<Criterion[]>([]);
+  const [judgeName, setJudgeName] = useState<string>("");
 
   const [scores, setScores] = useState<Record<string, CriterionScore>>({});
 
@@ -26,6 +27,16 @@ const JudgeEvaluation = () => {
 
   useEffect(() => {
     loadCriteria();
+    // Load judge name from localStorage
+    const storedJudgeInfo = localStorage.getItem("judgeInfo");
+    if (storedJudgeInfo) {
+      try {
+        const judge = JSON.parse(storedJudgeInfo);
+        setJudgeName(judge.name || "");
+      } catch (e) {
+        console.error("Failed to parse judge info:", e);
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -147,7 +158,12 @@ const JudgeEvaluation = () => {
               Retour aux Équipes
             </Button>
             <div className="flex items-center gap-2">
-              <img src="/logo/logo-algeria20.svg" alt="Algeria 2.0" className="h-14 w-14" />
+              <div className="flex flex-col items-end">
+                <img src="/logo/logo-algeria20.svg" alt="Algeria 2.0" className="h-14 w-14" />
+                {judgeName && (
+                  <p className="text-sm sm:text-base font-medium text-primary mt-1">{judgeName}</p>
+                )}
+              </div>
               <span className="text-sm font-medium">Évaluation Hackathon</span>
             </div>
           </div>

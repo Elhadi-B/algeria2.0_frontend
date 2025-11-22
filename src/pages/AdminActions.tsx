@@ -149,7 +149,7 @@ export default function AdminActions() {
                       </div>
 
                       {/* Criteria Scores */}
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                         {Object.entries(evaluation.scores).map(([key, score]) => {
                           const criterionName = getCriterionName(key);
                           return (
@@ -157,9 +157,9 @@ export default function AdminActions() {
                               key={key}
                               className="p-3 rounded-lg border bg-muted/30"
                             >
-                              <div className="flex items-center justify-between gap-2">
+                              <div className="flex flex-row items-center justify-between gap-2">
                                 <span className="text-sm font-medium break-words min-w-0 flex-1" title={criterionName}>
-                                  {criterionName}
+                                  {criterionName}:
                                 </span>
                                 <Badge className="shrink-0 ml-2">
                                   {Number(score.score).toFixed(1)}/5
