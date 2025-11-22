@@ -192,23 +192,21 @@ const AdminWinners = () => {
       return;
     }
 
-    if (triggerAnimationIfReady()) {
-      return;
-    }
+    let rafId: number | null = null;
 
-    if (!overlayRef.current) {
-      return;
-    }
-
-    const observer = new MutationObserver(() => {
-      if (triggerAnimationIfReady()) {
-        observer.disconnect();
+    const tryStart = () => {
+      if (!triggerAnimationIfReady()) {
+        rafId = requestAnimationFrame(tryStart);
       }
-    });
+    };
 
-    observer.observe(overlayRef.current, { childList: true, subtree: true });
+    rafId = requestAnimationFrame(tryStart);
 
-    return () => observer.disconnect();
+    return () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+    };
   }, [isAnimating, rankings.length, triggerAnimationIfReady]);
 
   const loadRankings = async () => {
