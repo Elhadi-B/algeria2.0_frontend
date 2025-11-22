@@ -18,7 +18,8 @@ type OverlayState = {
 
 const CAROUSEL_DURATION_MS = 4600;
 const ALIGN_SMOOTHING_MS = 520;
-const CAROUSEL_SPIN_SPEED = 240;
+const CAROUSEL_INITIAL_SPEED = 420;
+const CAROUSEL_FINAL_SPEED = 40;
 
 const PublicWinners = () => {
   const [rankings, setRankings] = useState<RankingItem[]>([]);
@@ -32,6 +33,7 @@ const PublicWinners = () => {
 
   const rotationRef = useRef(0);
   const rotationTargetRef = useRef(0);
+  const carouselStartRef = useRef(0);
   const rafRef = useRef<number | null>(null);
   const timersRef = useRef<number[]>([]);
   const wsRef = useRef<WebSocket | null>(null);
@@ -52,17 +54,23 @@ const PublicWinners = () => {
       last = time;
 
       if (animationPhase === "carousel") {
-        rotationRef.current += (CAROUSEL_SPIN_SPEED * delta) / 1000;
-        setRotation(normalizeAngle(rotationRef.current));
+        if (!carouselStartRef.current) {
+          carouselStartRef.current = time;
+        }
+        const elapsed = Math.max(0, time - carouselStartRef.current);
+        const progress = Math.min(1, elapsed / CAROUSEL_DURATION_MS);
+        const currentSpeed = getCarouselSpeed(progress);
+        rotationRef.current += (currentSpeed * delta) / 1000;
+        setRotation(rotationRef.current);
       } else if (animationPhase === "align") {
         const diff = rotationTargetRef.current - rotationRef.current;
         const easing = Math.min(1, delta / ALIGN_SMOOTHING_MS);
         rotationRef.current += diff * easing;
-        setRotation(normalizeAngle(rotationRef.current));
+        setRotation(rotationRef.current);
 
         if (Math.abs(diff) <= 0.6) {
           rotationRef.current = rotationTargetRef.current;
-          setRotation(normalizeAngle(rotationRef.current));
+          setRotation(rotationRef.current);
           setAnimationPhase("spotlight");
           return;
         }
@@ -156,8 +164,11 @@ const PublicWinners = () => {
     setRotation(0);
     setAnimationPhase("carousel");
     setIsAnimating(true);
+    carouselStartRef.current = typeof performance !== "undefined" ? performance.now() : Date.now();
 
-    scheduleTimer(() => setAnimationPhase("align"), CAROUSEL_DURATION_MS);
+    scheduleTimer(() => {
+      setAnimationPhase("align");
+    }, CAROUSEL_DURATION_MS);
   }, [buildParticipants, pickWinnersForPlace]);
 
   const clearScheduledTimers = () => {
@@ -188,6 +199,7 @@ const PublicWinners = () => {
 
     rotationRef.current = 0;
     rotationTargetRef.current = 0;
+    carouselStartRef.current = 0;
     setRotation(0);
     setOverlayState(null);
     setIsAnimating(false);
@@ -205,7 +217,8 @@ const PublicWinners = () => {
     }
 
     rotationRef.current = rotationTargetRef.current;
-    setRotation(normalizeAngle(rotationRef.current));
+    setRotation(rotationRef.current);
+    carouselStartRef.current = 0;
     setRevealedPlace(overlayState.place);
     setIsAnimating(false);
     setAnimationPhase("idle");
@@ -429,5 +442,11 @@ function computeTargetRotation(participants: RankingItem[], winner: RankingItem)
   const angleStep = 360 / participants.length;
   const baseAngle = angleStep * winnerIndex;
   return (360 - baseAngle) % 360;
+}
+
+function getCarouselSpeed(progress: number) {
+  const clamped = Math.min(1, Math.max(0, progress));
+  const decay = Math.pow(1 - clamped, 2.2);
+  return CAROUSEL_FINAL_SPEED + (CAROUSEL_INITIAL_SPEED - CAROUSEL_FINAL_SPEED) * decay;
 }
 
