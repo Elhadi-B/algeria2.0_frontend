@@ -1,17 +1,26 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trophy, Sparkles, RotateCcw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { WinnersShowcaseOverlay, type ShowcasePhase } from "@/components/winners/ShowtimeOverlay";
+import { getPlaceTheme, type PlaceTheme } from "@/lib/winnerThemes";
+import { computeTopThree } from "@/lib/topThree";
 import { adminGetRanking, adminAnnounceWinner } from "@/lib/api";
 import type { RankingItem } from "@/lib/types";
 
-type AnimationPayload = {
-  targetPlace: number;
-  winnerTeams: RankingItem[];
-  winnerColor: string;
-  winnerNums: Set<string>;
+type AnimationPhase = "idle" | ShowcasePhase;
+
+type OverlayState = {
+  place: number;
+  winners: RankingItem[];
+  participants: RankingItem[];
+  theme: PlaceTheme;
 };
+
+const CAROUSEL_DURATION_MS = 4600;
+const ALIGN_SMOOTHING_MS = 520;
+const CAROUSEL_SPIN_SPEED = 240; // deg/sec
 
 const AdminWinners = () => {
   const { toast } = useToast();
@@ -19,195 +28,98 @@ const AdminWinners = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [revealedPlace, setRevealedPlace] = useState<number | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [animationPhase, setAnimationPhase] = useState<'idle' | 'rapid' | 'slowing' | 'stopping'>('idle');
-  const animationIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const animationFrameRef = useRef<number | null>(null);
-  const cardPositionsRef = useRef<Map<string, { x: number; y: number; rotation: number }>>(new Map());
-  const overlayRef = useRef<HTMLDivElement | null>(null);
-  const pendingAnimationRef = useRef<AnimationPayload | null>(null);
+  const [animationPhase, setAnimationPhase] = useState<AnimationPhase>("idle");
+  const [overlayState, setOverlayState] = useState<OverlayState | null>(null);
+  const [rotation, setRotation] = useState(0);
+  const [revealedTeams, setRevealedTeams] = useState<RankingItem[]>([]);
 
-  const triggerAnimationIfReady = useCallback(() => {
-    const payload = pendingAnimationRef.current;
-    if (!payload) {
-      return false;
-    }
-
-    const cards = document.querySelectorAll('.team-card');
-    if (cards.length === 0) {
-      return false;
-    }
-
-    pendingAnimationRef.current = null;
-    const { winnerTeams, winnerNums, winnerColor, targetPlace } = payload;
-
-    const originalPositions = new Map<Element, { left: number; top: number; width: number; height: number }>();
-    cards.forEach((card) => {
-      const rect = (card as HTMLElement).getBoundingClientRect();
-      originalPositions.set(card, {
-        left: rect.left,
-        top: rect.top,
-        width: rect.width,
-        height: rect.height,
-      });
-    });
-
-    cards.forEach((card) => {
-      const el = card as HTMLElement;
-      el.style.position = 'absolute';
-      el.style.transition = 'none';
-      el.style.transform = 'translate(0, 0) rotate(0deg)';
-    });
-
-    let startTime = Date.now();
-    const rapidDuration = 3000;
-    const slowDuration = 2000;
-
-    const animate = () => {
-      const elapsed = Date.now() - startTime;
-      const activeCards = document.querySelectorAll('.team-card');
-
-      if (elapsed < rapidDuration) {
-        setAnimationPhase('rapid');
-        activeCards.forEach((card) => {
-          const randomX = (Math.random() - 0.5) * (window.innerWidth * 0.7);
-          const randomY = (Math.random() - 0.5) * (window.innerHeight * 0.7);
-          const randomRotate = (Math.random() - 0.5) * 360;
-          const el = card as HTMLElement;
-          el.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg)`;
-          el.style.transition = 'none';
-        });
-        animationFrameRef.current = requestAnimationFrame(animate);
-      } else if (elapsed < rapidDuration + slowDuration) {
-        setAnimationPhase('slowing');
-        const progress = (elapsed - rapidDuration) / slowDuration;
-        const easeOut = 1 - Math.pow(1 - progress, 3);
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
-        let winnerIndex = 0;
-
-        activeCards.forEach((card) => {
-          const teamId = card.getAttribute('data-team-id');
-          const el = card as HTMLElement;
-          const isWinner = teamId && winnerNums.has(teamId);
-
-          if (isWinner) {
-            const offsetX = (winnerIndex - (winnerTeams.length - 1) / 2) * 150;
-            const targetX = centerX - 60 + offsetX - (window.innerWidth / 2);
-            const targetY = centerY - 40 - (window.innerHeight / 2);
-            const currentX = targetX * (1 - easeOut);
-            const currentY = targetY * (1 - easeOut);
-            const currentRotate = 360 * (1 - easeOut);
-            const currentScale = 0.8 + (1.2 - 0.8) * easeOut;
-
-            el.style.transition = 'transform 0.1s linear, box-shadow 0.1s linear';
-            el.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${currentRotate}deg) scale(${currentScale})`;
-            el.style.boxShadow = `0 0 ${20 * easeOut}px ${winnerColor}`;
-            el.style.borderColor = winnerColor;
-            el.style.borderWidth = `${2 + 2 * easeOut}px`;
-
-            winnerIndex++;
-          } else {
-            const randomX = (Math.random() - 0.5) * (window.innerWidth * 0.7) * (1 - easeOut);
-            const randomY = (Math.random() - 0.5) * (window.innerHeight * 0.7) * (1 - easeOut);
-            const randomRotate = (Math.random() - 0.5) * 360 * (1 - easeOut);
-            const opacity = 1 - easeOut;
-            const scale = 1 - easeOut * 0.5;
-
-            el.style.transition = 'transform 0.1s linear, opacity 0.1s linear';
-            el.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg) scale(${scale})`;
-            el.style.opacity = opacity.toString();
-          }
-        });
-        animationFrameRef.current = requestAnimationFrame(animate);
-      } else {
-        setAnimationPhase('stopping');
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
-        let winnerIndex = 0;
-
-        activeCards.forEach((card) => {
-          const teamId = card.getAttribute('data-team-id');
-          const el = card as HTMLElement;
-          const isWinner = teamId && winnerNums.has(teamId);
-
-          if (isWinner) {
-            const originalPos = originalPositions.get(card);
-            if (originalPos) {
-              const cardWidth = originalPos.width || 120;
-              const offsetX = winnerTeams.length === 1 ? 0 : (winnerIndex - (winnerTeams.length - 1) / 2) * 150;
-              const targetCenterX = centerX - cardWidth / 2 + offsetX;
-              const targetCenterY = centerY - 40;
-              const finalX = targetCenterX - originalPos.left;
-              const finalY = targetCenterY - originalPos.top;
-
-              el.style.transition = 'transform 0.5s ease-out, box-shadow 0.5s ease-out';
-              el.style.transform = `translate(${finalX}px, ${finalY}px) rotate(0deg) scale(1.1)`;
-              el.style.boxShadow = `0 0 30px ${winnerColor}`;
-            }
-            winnerIndex++;
-          } else {
-            el.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
-            el.style.opacity = '0';
-            el.style.transform = 'translate(0, 0) rotate(0deg) scale(0.5)';
-          }
-        });
-
-        setTimeout(() => {
-          setIsAnimating(false);
-          setAnimationPhase('idle');
-          setRevealedPlace(targetPlace);
-
-          activeCards.forEach((card) => {
-            const el = card as HTMLElement;
-            el.style.position = '';
-            el.style.opacity = '';
-            el.style.transform = '';
-            el.style.transition = '';
-            el.style.boxShadow = '';
-            el.style.borderColor = '';
-            el.style.borderWidth = '';
-          });
-        }, 600);
-      }
-    };
-
-    animationFrameRef.current = requestAnimationFrame(animate);
-    return true;
-  }, [setAnimationPhase, setIsAnimating, setRevealedPlace]);
+  const rotationRef = useRef(0);
+  const rotationTargetRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
+  const timersRef = useRef<number[]>([]);
 
   useEffect(() => {
     loadRankings();
     return () => {
-      if (animationIntervalRef.current) {
-        clearInterval(animationIntervalRef.current);
-      }
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
+      clearScheduledTimers();
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
       }
     };
   }, []);
 
   useEffect(() => {
-    if (!isAnimating) {
+    if (!isAnimating || !overlayState || animationPhase === "idle") {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
       return;
     }
 
-    let rafId: number | null = null;
+    let last = performance.now();
 
-    const tryStart = () => {
-      if (!triggerAnimationIfReady()) {
-        rafId = requestAnimationFrame(tryStart);
+    const step = (time: number) => {
+      const delta = time - last;
+      last = time;
+
+      if (animationPhase === "carousel") {
+        rotationRef.current += (CAROUSEL_SPIN_SPEED * delta) / 1000;
+        setRotation(normalizeAngle(rotationRef.current));
+      } else if (animationPhase === "align") {
+        const diff = rotationTargetRef.current - rotationRef.current;
+        const easing = Math.min(1, delta / ALIGN_SMOOTHING_MS);
+        rotationRef.current += diff * easing;
+        setRotation(normalizeAngle(rotationRef.current));
+
+        if (Math.abs(diff) <= 0.6) {
+          rotationRef.current = rotationTargetRef.current;
+          setRotation(normalizeAngle(rotationRef.current));
+          setAnimationPhase("spotlight");
+          return;
+        }
       }
+
+      rafRef.current = requestAnimationFrame(step);
     };
 
-    rafId = requestAnimationFrame(tryStart);
+    rafRef.current = requestAnimationFrame(step);
 
     return () => {
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
       }
     };
-  }, [isAnimating, rankings.length, triggerAnimationIfReady]);
+  }, [animationPhase, isAnimating, overlayState]);
+
+  useEffect(() => {
+    if (animationPhase !== "align" || !overlayState || overlayState.winners.length === 0) {
+      return;
+    }
+
+    rotationTargetRef.current = computeForwardRotationTarget(
+      overlayState.participants,
+      overlayState.winners[0],
+      rotationRef.current
+    );
+  }, [animationPhase, overlayState]);
+
+  useEffect(() => {
+    if (animationPhase !== "spotlight" || !overlayState) {
+      return;
+    }
+
+    scheduleTimer(() => setAnimationPhase("celebration"), 900);
+  }, [animationPhase, overlayState]);
+
+  useEffect(() => {
+    if (animationPhase !== "celebration" || !overlayState) {
+      return;
+    }
+
+    scheduleTimer(() => finalizeReveal(), 2600);
+  }, [animationPhase, overlayState]);
 
   const loadRankings = async () => {
     setIsLoading(true);
@@ -225,107 +137,129 @@ const AdminWinners = () => {
     }
   };
 
-  const getTopThree = () => {
-    if (rankings.length === 0) return { first: [], second: [], third: [] };
-    
-    const firstPlace = rankings.filter(t => t.rank === 1);
-    const rank2Teams = rankings.filter(t => t.rank === 2);
-    const rank3Teams = rankings.filter(t => t.rank === 3);
-    
-    let secondPlace: RankingItem[] = [];
-    let thirdPlace: RankingItem[] = [];
-    
-    if (firstPlace.length === 1) {
-      secondPlace = rank2Teams;
-      thirdPlace = rank3Teams;
-    } else {
-      secondPlace = [];
-      thirdPlace = rank2Teams;
-    }
-    
-    return {
-      first: firstPlace,
-      second: secondPlace,
-      third: thirdPlace,
-    };
-  };
+  const startShowcase = (targetPlace: number) => {
+    const winners = pickWinnersForPlace(targetPlace);
 
-  const startShuffleAnimation = (targetPlace: number) => {
-    // Reset any previous state
-    resetAnimation(false);
-    
-    const topThree = getTopThree();
-    let winnerTeams: RankingItem[] = [];
-    let winnerColor = '';
-    
-    if (targetPlace === 3) {
-      winnerTeams = topThree.third;
-      winnerColor = '#FF6B35'; // Orange
-    } else if (targetPlace === 2) {
-      winnerTeams = topThree.second;
-      winnerColor = '#4ECDC4'; // Green/Turquoise
-    } else if (targetPlace === 1) {
-      winnerTeams = topThree.first;
-      winnerColor = '#1E88E5'; // Blue
+    if (winners.length === 0) {
+      setRevealedPlace(targetPlace);
+      return;
     }
-    
-    const winnerNums = new Set(winnerTeams.map(t => t.num_equipe));
-    
-    setTimeout(() => {
-      pendingAnimationRef.current = {
-        targetPlace,
-        winnerTeams,
-        winnerColor,
-        winnerNums,
-      };
-      setIsAnimating(true);
-      setAnimationPhase('rapid');
-      setRevealedPlace(null);
 
-      requestAnimationFrame(() => {
-        triggerAnimationIfReady();
-      });
-    }, 50);
+    setRevealedPlace(null);
+    const participants = buildParticipants(winners);
+    const theme = getPlaceTheme(targetPlace);
+
+    setOverlayState({ place: targetPlace, winners, participants, theme });
+    rotationRef.current = 0;
+    setRotation(0);
+    setAnimationPhase("carousel");
+    setIsAnimating(true);
+
+    scheduleTimer(() => {
+      setAnimationPhase("align");
+    }, CAROUSEL_DURATION_MS);
   };
 
   const resetAnimation = async (broadcast = true) => {
-    pendingAnimationRef.current = null;
     if (broadcast) {
       try {
-        await adminAnnounceWinner(0, 'reset');
+        await adminAnnounceWinner(0, "reset");
       } catch (error: any) {
         console.error("Failed to send reset:", error);
       }
     }
-    
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = null;
+
+    clearScheduledTimers();
+
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
     }
-    if (animationIntervalRef.current) {
-      clearInterval(animationIntervalRef.current);
-      animationIntervalRef.current = null;
-    }
+
+    rotationRef.current = 0;
+    rotationTargetRef.current = 0;
+    setRotation(0);
+    setOverlayState(null);
     setIsAnimating(false);
-    setAnimationPhase('idle');
+    setAnimationPhase("idle");
     setRevealedPlace(null);
-    
-    const cards = document.querySelectorAll('.team-card');
-    cards.forEach((card) => {
-      (card as HTMLElement).style.position = '';
-      (card as HTMLElement).style.transform = '';
-      (card as HTMLElement).style.transition = '';
-      (card as HTMLElement).style.opacity = '';
+    setRevealedTeams([]);
+  };
+
+  const scheduleTimer = (callback: () => void, delay: number) => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const id = window.setTimeout(() => {
+      callback();
+      timersRef.current = timersRef.current.filter((timer) => timer !== id);
+    }, delay);
+    timersRef.current.push(id);
+  };
+
+  const clearScheduledTimers = () => {
+    if (typeof window !== "undefined") {
+      timersRef.current.forEach((timer) => window.clearTimeout(timer));
+    }
+    timersRef.current = [];
+  };
+
+  const buildParticipants = (winners: RankingItem[]) => {
+    const desiredCount = Math.min(rankings.length, 12);
+    const unique = new Map<string, RankingItem>();
+    revealedTeams.forEach((team) => unique.set(team.num_equipe, team));
+    winners.forEach((team) => unique.set(team.num_equipe, team));
+
+    for (const team of rankings) {
+      if (unique.size >= desiredCount) {
+        break;
+      }
+      if (!unique.has(team.num_equipe)) {
+        unique.set(team.num_equipe, team);
+      }
+    }
+
+    return Array.from(unique.values());
+  };
+
+  const finalizeReveal = () => {
+    if (!overlayState) {
+      return;
+    }
+
+    rotationRef.current = rotationTargetRef.current;
+    setRotation(normalizeAngle(rotationRef.current));
+    setRevealedPlace(overlayState.place);
+    setIsAnimating(false);
+    setAnimationPhase("idle");
+    setOverlayState(null);
+
+    setRevealedTeams((prev) => {
+      const unique = new Map(prev.map((team) => [team.num_equipe, team] as const));
+      overlayState.winners.forEach((team) => unique.set(team.num_equipe, team));
+      return Array.from(unique.values());
     });
   };
 
   const revealPlace = async (place: number) => {
+    const canReveal =
+      (place === 1 && hasFirstPlace) ||
+      (place === 2 && hasSecondPlace) ||
+      (place === 3 && hasThirdPlace);
+
+    if (!canReveal) {
+      toast({
+        title: "Aucun gagnant pour cette place",
+        description: "Ajoutez davantage d'évaluations ou choisissez une autre place.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!isAnimating && (revealedPlace === null || revealedPlace > place)) {
       try {
-        // Send WebSocket announcement to all connected clients
         await adminAnnounceWinner(place, 'start_animation');
-        // Start animation locally for admin
-        startShuffleAnimation(place);
+        startShowcase(place);
       } catch (error: any) {
         console.error("Failed to announce winner:", error);
         toast({
@@ -333,13 +267,30 @@ const AdminWinners = () => {
           description: "Impossible d'envoyer l'annonce. L'animation locale continue.",
           variant: "destructive",
         });
-        // Still start animation locally even if WebSocket fails
-        startShuffleAnimation(place);
+        startShowcase(place);
       }
     }
   };
 
-  const topThree = getTopThree();
+  const topThree = useMemo(() => computeTopThree(rankings), [rankings]);
+  const hasFirstPlace = topThree.first.length > 0;
+  const hasSecondPlace = topThree.second.length > 0;
+  const hasThirdPlace = topThree.third.length > 0;
+
+  const pickWinnersForPlace = (targetPlace: number) => {
+    if (targetPlace === 1) {
+      return topThree.first;
+    }
+    if (targetPlace === 2) {
+      return topThree.second;
+    }
+    if (targetPlace === 3) {
+      return topThree.third;
+    }
+    return [];
+  };
+
+  const overlayPhase: ShowcasePhase = animationPhase === "idle" ? "carousel" : animationPhase;
 
   if (isLoading) {
     return (
@@ -475,47 +426,16 @@ const AdminWinners = () => {
           </div>
         )}
 
-        {/* Animated Team Cards - Only show when animating */}
-        {isAnimating && (
-          <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-50 bg-black/20 backdrop-blur-sm">
-            <div ref={overlayRef} className="relative w-full h-full">
-              {rankings.map((team, index) => {
-                // Calculate initial grid position
-                const cols = Math.ceil(Math.sqrt(rankings.length));
-                const row = Math.floor(index / cols);
-                const col = index % cols;
-                const centerX = window.innerWidth / 2;
-                const centerY = window.innerHeight / 2;
-                const cardWidth = 120;
-                const cardHeight = 80;
-                const startX = centerX - (cols * cardWidth) / 2 + col * cardWidth;
-                const startY = centerY - (Math.ceil(rankings.length / cols) * cardHeight) / 2 + row * cardHeight;
-                
-                // Assign colors from logo palette (blue, orange, green)
-                const logoColors = ['#1E88E5', '#FF6B35', '#4ECDC4'];
-                const cardColor = logoColors[index % logoColors.length];
-                
-                return (
-                  <Card
-                    key={team.num_equipe}
-                    data-team-id={team.num_equipe}
-                    className="team-card shadow-xl absolute border-2"
-                    style={{
-                      left: `${startX}px`,
-                      top: `${startY}px`,
-                      width: `${cardWidth}px`,
-                      backgroundColor: cardColor,
-                      borderColor: cardColor,
-                    }}
-                  >
-                    <CardContent className="p-3 text-center">
-                      <div className="text-sm font-medium truncate text-white drop-shadow-md">{team.nom_equipe}</div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
+        {overlayState && animationPhase !== "idle" && (
+          <WinnersShowcaseOverlay
+            visible={isAnimating}
+            participants={overlayState.participants}
+            winners={overlayState.winners}
+            rotation={rotation}
+            phase={overlayPhase}
+            theme={overlayState.theme}
+            showHighlights={animationPhase !== "carousel"}
+          />
         )}
 
         {/* Static Team Cards - Only show when nothing is revealed and not animating */}
@@ -536,3 +456,31 @@ const AdminWinners = () => {
 };
 
 export default AdminWinners;
+
+function normalizeAngle(value: number) {
+  let angle = value % 360;
+  if (angle < 0) {
+    angle += 360;
+  }
+  return angle;
+}
+
+function computeForwardRotationTarget(participants: RankingItem[], winner: RankingItem, currentRotation: number) {
+  const targetAngle = computeTargetRotation(participants, winner);
+  const currentAngle = normalizeAngle(currentRotation);
+  const forwardDiff = ((targetAngle - currentAngle + 360) % 360);
+  return currentRotation + forwardDiff;
+}
+
+function computeTargetRotation(participants: RankingItem[], winner: RankingItem) {
+  if (participants.length === 0) {
+    return 0;
+  }
+  const winnerIndex = participants.findIndex((team) => team.num_equipe === winner.num_equipe);
+  if (winnerIndex === -1) {
+    return 0;
+  }
+  const angleStep = 360 / participants.length;
+  const baseAngle = angleStep * winnerIndex;
+  return (360 - baseAngle) % 360;
+}

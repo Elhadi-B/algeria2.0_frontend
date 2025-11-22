@@ -132,3 +132,223 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .winner-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Space Grotesk", "Inter", sans-serif;
+    color: #fff;
+    isolation: isolate;
+  }
+
+  .winner-overlay__backdrop {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(4, 7, 18, 0.9), rgba(0, 0, 0, 0.95));
+    transition: background 0.6s ease;
+    z-index: -2;
+  }
+
+  .winner-overlay__spotlight {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 25%, var(--winner-beam), rgba(3, 5, 15, 0.2) 45%, rgba(0, 0, 0, 0.92) 70%);
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    z-index: -1;
+  }
+
+  .winner-overlay--align .winner-overlay__spotlight,
+  .winner-overlay--spotlight .winner-overlay__spotlight,
+  .winner-overlay--celebration .winner-overlay__spotlight {
+    opacity: 1;
+  }
+
+  .winner-orbit {
+    position: relative;
+    width: min(78vw, 520px);
+    height: min(78vw, 520px);
+  }
+
+  .winner-orbit::after {
+    content: "";
+    position: absolute;
+    inset: 6%;
+    border-radius: 50%;
+    border: 2px dashed rgba(255, 255, 255, 0.12);
+    box-shadow: 0 0 45px rgba(255, 255, 255, 0.12);
+  }
+
+  .winner-orbit__card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: clamp(120px, 18vw, 180px);
+    padding: 0.65rem 1rem;
+    background: rgba(6, 10, 26, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.85rem;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
+    text-align: center;
+    transform-origin: center;
+    transform: translate(-50%, -50%) rotate(calc(var(--item-angle) + var(--orbit-rotation, 0deg))) translate(var(--orbit-radius, clamp(180px, 30vw, 260px))) rotate(calc(-1 * (var(--item-angle) + var(--orbit-rotation, 0deg))));
+    transition: transform 0.2s ease-out, opacity 0.2s ease-out, box-shadow 0.2s ease-out, background 0.3s ease;
+    color: #f7f9ff;
+  }
+
+  .winner-orbit__name {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .winner-orbit__card--winner {
+    border-color: var(--winner-accent);
+    box-shadow: 0 10px 35px var(--winner-glow);
+  }
+
+  .winner-orbit__card--hero {
+    background: var(--winner-gradient);
+    color: var(--winner-text);
+    transform: translate(-50%, -50%) rotate(calc(var(--item-angle) + var(--orbit-rotation, 0deg))) translate(var(--orbit-radius, clamp(180px, 30vw, 260px))) rotate(calc(-1 * (var(--item-angle) + var(--orbit-rotation, 0deg)))) scale(1.12);
+    box-shadow: 0 25px 60px var(--winner-glow);
+  }
+
+  .winner-orbit__card--center {
+    transform: translate(calc(-50% + var(--center-offset, 0px)), -50%) scale(1.4);
+    border-width: 2px;
+    border-color: #fff5d1;
+    box-shadow: 0 30px 80px var(--winner-glow), 0 0 35px var(--winner-accent);
+    z-index: 5;
+    animation: winner-pop 0.9s ease forwards;
+  }
+
+  .winner-fireworks {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .winner-firework {
+    position: absolute;
+    bottom: 5vh;
+    width: 5px;
+    height: 160px;
+    border-radius: 50px;
+    background: linear-gradient(to top, rgba(255, 255, 255, 0), var(--firework-color));
+    animation: firework-launch 1.35s ease-in-out infinite;
+    mix-blend-mode: screen;
+  }
+
+  .winner-firework::after {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--firework-color);
+    transform: translate(-50%, 0) scale(0);
+    animation: firework-burst 1.35s ease-out infinite;
+  }
+
+  .winner-firework--left:nth-of-type(odd) {
+    left: clamp(5vw, 12vw, 200px);
+    animation-delay: 0s;
+  }
+
+  .winner-firework--left:nth-of-type(even) {
+    left: clamp(12vw, 18vw, 260px);
+    animation-delay: 0.3s;
+  }
+
+  .winner-firework--right:nth-of-type(odd) {
+    right: clamp(5vw, 12vw, 200px);
+    animation-delay: 0.45s;
+  }
+
+  .winner-firework--right:nth-of-type(even) {
+    right: clamp(12vw, 18vw, 260px);
+    animation-delay: 0.15s;
+  }
+
+  .winner-overlay__flare {
+    position: absolute;
+    width: clamp(12rem, 35vw, 27rem);
+    height: clamp(12rem, 35vw, 27rem);
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(255, 247, 220, 0.55) 0%, rgba(255, 214, 137, 0.25) 40%, rgba(0,0,0,0) 70%);
+    filter: blur(1px);
+    animation: flarePulse 2.2s ease-in-out infinite;
+    pointer-events: none;
+  }
+}
+
+@keyframes firework-launch {
+  0% {
+    transform: scaleY(0.2);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  60% {
+    transform: scaleY(1) translateY(-60px);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(0.4) translateY(-140px);
+    opacity: 0;
+  }
+}
+
+@keyframes firework-burst {
+  0% {
+    transform: translate(-50%, 0) scale(0);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -30px) scale(3.25);
+    opacity: 0;
+  }
+}
+
+@keyframes winner-pop {
+  0% {
+    transform: translate(calc(-50% + var(--center-offset, 0px)), -50%) scale(0.7);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--center-offset, 0px)), -50%) scale(1.4);
+  }
+}
+
+@keyframes flarePulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0.55;
+  }
+}
