@@ -223,6 +223,8 @@ All colors MUST be HSL.
 
   .winner-orbit__card--center {
     transform: translate(calc(-50% + var(--center-offset, 0px)), -50%) scale(1.4);
+    background: var(--winner-gradient);
+    color: var(--winner-text);
     border-width: 2px;
     border-color: #fff5d1;
     box-shadow: 0 30px 80px var(--winner-glow), 0 0 35px var(--winner-accent);

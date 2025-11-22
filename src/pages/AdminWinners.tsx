@@ -19,7 +19,6 @@ type OverlayState = {
 };
 
 const CAROUSEL_DURATION_MS = 4600;
-const ALIGN_SMOOTHING_MS = 520;
 const CAROUSEL_INITIAL_SPEED = 420;
 const CAROUSEL_FINAL_SPEED = 40;
 
@@ -35,7 +34,6 @@ const AdminWinners = () => {
   const [revealedTeams, setRevealedTeams] = useState<RankingItem[]>([]);
 
   const rotationRef = useRef(0);
-  const rotationTargetRef = useRef(0);
   const carouselStartRef = useRef(0);
   const rafRef = useRef<number | null>(null);
   const timersRef = useRef<number[]>([]);
@@ -51,7 +49,7 @@ const AdminWinners = () => {
   }, []);
 
   useEffect(() => {
-    if (!isAnimating || !overlayState || animationPhase === "idle") {
+    if (!isAnimating || !overlayState || animationPhase !== "carousel") {
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
@@ -65,28 +63,14 @@ const AdminWinners = () => {
       const delta = time - last;
       last = time;
 
-      if (animationPhase === "carousel") {
-        if (!carouselStartRef.current) {
-          carouselStartRef.current = time;
-        }
-        const elapsed = Math.max(0, time - carouselStartRef.current);
-        const progress = Math.min(1, elapsed / CAROUSEL_DURATION_MS);
-        const currentSpeed = getCarouselSpeed(progress);
-        rotationRef.current += (currentSpeed * delta) / 1000;
-        setRotation(rotationRef.current);
-      } else if (animationPhase === "align") {
-        const diff = rotationTargetRef.current - rotationRef.current;
-        const easing = Math.min(1, delta / ALIGN_SMOOTHING_MS);
-        rotationRef.current += diff * easing;
-        setRotation(rotationRef.current);
-
-        if (Math.abs(diff) <= 0.6) {
-          rotationRef.current = rotationTargetRef.current;
-          setRotation(rotationRef.current);
-          setAnimationPhase("spotlight");
-          return;
-        }
+      if (!carouselStartRef.current) {
+        carouselStartRef.current = time;
       }
+      const elapsed = Math.max(0, time - carouselStartRef.current);
+      const progress = Math.min(1, elapsed / CAROUSEL_DURATION_MS);
+      const currentSpeed = getCarouselSpeed(progress);
+      rotationRef.current += (currentSpeed * delta) / 1000;
+      setRotation(rotationRef.current);
 
       rafRef.current = requestAnimationFrame(step);
     };
@@ -100,18 +84,6 @@ const AdminWinners = () => {
       }
     };
   }, [animationPhase, isAnimating, overlayState]);
-
-  useEffect(() => {
-    if (animationPhase !== "align" || !overlayState || overlayState.winners.length === 0) {
-      return;
-    }
-
-    rotationTargetRef.current = computeForwardRotationTarget(
-      overlayState.participants,
-      overlayState.winners[0],
-      rotationRef.current
-    );
-  }, [animationPhase, overlayState]);
 
   useEffect(() => {
     if (animationPhase !== "spotlight" || !overlayState) {
@@ -165,7 +137,7 @@ const AdminWinners = () => {
     carouselStartRef.current = typeof performance !== "undefined" ? performance.now() : Date.now();
 
     scheduleTimer(() => {
-      setAnimationPhase("align");
+      setAnimationPhase("spotlight");
     }, CAROUSEL_DURATION_MS);
   };
 
@@ -186,7 +158,6 @@ const AdminWinners = () => {
     }
 
     rotationRef.current = 0;
-    rotationTargetRef.current = 0;
     carouselStartRef.current = 0;
     setRotation(0);
     setOverlayState(null);
@@ -237,7 +208,6 @@ const AdminWinners = () => {
       return;
     }
 
-    rotationRef.current = rotationTargetRef.current;
     setRotation(rotationRef.current);
     carouselStartRef.current = 0;
     setRevealedPlace(overlayState.place);
@@ -467,34 +437,6 @@ const AdminWinners = () => {
 };
 
 export default AdminWinners;
-
-function normalizeAngle(value: number) {
-  let angle = value % 360;
-  if (angle < 0) {
-    angle += 360;
-  }
-  return angle;
-}
-
-function computeForwardRotationTarget(participants: RankingItem[], winner: RankingItem, currentRotation: number) {
-  const targetAngle = computeTargetRotation(participants, winner);
-  const currentAngle = normalizeAngle(currentRotation);
-  const forwardDiff = ((targetAngle - currentAngle + 360) % 360);
-  return currentRotation + forwardDiff;
-}
-
-function computeTargetRotation(participants: RankingItem[], winner: RankingItem) {
-  if (participants.length === 0) {
-    return 0;
-  }
-  const winnerIndex = participants.findIndex((team) => team.num_equipe === winner.num_equipe);
-  if (winnerIndex === -1) {
-    return 0;
-  }
-  const angleStep = 360 / participants.length;
-  const baseAngle = angleStep * winnerIndex;
-  return (360 - baseAngle) % 360;
-}
 
 function getCarouselSpeed(progress: number) {
   const clamped = Math.min(1, Math.max(0, progress));
