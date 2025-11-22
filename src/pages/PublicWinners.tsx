@@ -123,14 +123,9 @@ const PublicWinners = () => {
       setAnimationPhase('rapid');
       setRevealedPlace(null);
       
-      // Wait a bit for state to update
-      setTimeout(() => {
+      // Define animation function first
+      const startAnimation = () => {
         const cards = document.querySelectorAll('.team-card');
-        if (cards.length === 0) {
-          setIsAnimating(false);
-          setRevealedPlace(targetPlace);
-          return;
-        }
 
         // Store original positions before making cards absolute
         const originalPositions = new Map<Element, { left: number; top: number; width: number; height: number }>();
@@ -277,7 +272,31 @@ const PublicWinners = () => {
         };
 
         animationFrameRef.current = requestAnimationFrame(animate);
-      }, 100);
+      };
+      
+      // Wait for React to render the cards - retry mechanism for production
+      const waitForCards = (retries = 20) => {
+        const cards = document.querySelectorAll('.team-card');
+        console.log(`Checking for cards, attempt ${21 - retries}, found: ${cards.length}`);
+        
+        if (cards.length === 0 && retries > 0) {
+          setTimeout(() => waitForCards(retries - 1), 100);
+          return;
+        }
+        if (cards.length === 0) {
+          console.error("No cards found after all retries, skipping animation. Rankings count:", rankings.length);
+          setIsAnimating(false);
+          setRevealedPlace(targetPlace);
+          return;
+        }
+        
+        console.log(`Cards found: ${cards.length}, starting animation`);
+        // Cards found, start animation
+        startAnimation();
+      };
+      
+      // Start waiting for cards - give React more time in production
+      setTimeout(() => waitForCards(), 300);
     }, 50);
   };
 
